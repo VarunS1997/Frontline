@@ -1,6 +1,6 @@
 a = "a"
-li = []
 b = "b"
+li = []
 def simple():
 	for i in range(10):
 		ab = a + b

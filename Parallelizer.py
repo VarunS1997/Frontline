@@ -37,11 +37,13 @@ class Parallelizer:
 
         internalVars = self.__find_localized_variables()
         for line in self.__scopeObject:
-            funcMatch = re.match(r"(?P<funcCall>(?P<func>([a-zA-Z]*\.)*[a-zA-Z]+)\((?P<args>[^+\-/*\n]*)\)[ \n])", line)
+            print("FOR LOOP CHECK: ", str(line.encode("unicode-escape")))
+            funcMatch = re.match(r"(?P<funcCall>(?P<func>([a-zA-Z]*\.)*[a-zA-Z]+)\((?P<args>[^\n]*)\)[ \n]?)", line.strip())
             if(funcMatch != None):
                 args = funcMatch.group("args").replace(" ", "").split(",")
+                print("MATCH ", line)
                 if any([arg not in internalVars for arg in args]):
-                    self.__scopeObject.get_child(line).replace("subresult" + uniqueId + ".append(({0}, {1}))\n".format(funcMatch.group("func"), tuple(args)))
+                    self.__scopeObject.get_child(line).replace("subresult" + uniqueId + ".append(({0}, {1}))\n".format('"{}"'.format(funcMatch.group("func")), ", ".join(["repr({})".format(arg) for arg in args])))
 
         loopFuncDec = "def PARFOR" + uniqueId + "(" + varName + "):\n"
         print("REPLACING: " + str(self.__scopeObject.get_line().encode("unicode-escape")))
@@ -58,6 +60,11 @@ class Parallelizer:
         self.__scopeObject.get_parent().add_child("\t"*self.__tabCount + "p = Pool(4)\n", selfIndex+1)
         self.__scopeObject.get_parent().add_child("\t"*self.__tabCount + "result" + uniqueId + " = p.map(PARFOR" + uniqueId + ", [" + varName + " " + oldCode.rstrip()[:-1] + "])\n", selfIndex+2)
         self.__scopeObject.get_parent().add_child("\t"*self.__tabCount + "p.close()\n", selfIndex+3)
+
+        compilationForLoopObj = ScopeObject("\t"*self.__tabCount + "for pendingCalls in result" + uniqueId + ":\n", self.__scopeObject.get_parent())
+        compilationForLoopObj.add_child("\t"*(self.__tabCount+1) + "for pcall in pendingCalls:\n")
+        compilationForLoopObj.get_children()[0].add_child("\t"*(self.__tabCount+2) + "eval(pcall[0])(*[eval(arg) for arg in (pcall[1].split(', '))])\n")
+        self.__scopeObject.get_parent().add_child(compilationForLoopObj, selfIndex+4)
 
         ptr = self.__scopeObject.get_parent()
         while(not ptr.is_root()):

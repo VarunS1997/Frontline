@@ -58,7 +58,8 @@ class TempFile:
 
 	def __run_parallizer(self):
 		def run_subroutine(child):
-			for subchild in child.get_children():
+			childrenList = list(child.get_children())
+			for subchild in childrenList:
 				run_subroutine(subchild)
 			p = Parallelizer(child)
 			p.run()
@@ -72,7 +73,8 @@ class TempFile:
 
 	def __run__optimizer(self):
 		def run_subroutine(child):
-			for subchild in child.get_children():
+			childrenList = list(child.get_children())
+			for subchild in childrenList:
 				run_subroutine(subchild)
 			o = Optimizer(child)
 			o.run()
