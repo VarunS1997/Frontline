@@ -3,8 +3,9 @@ import re
 
 class Parallelizer:
 
-    def __init__(self, scopeObject):
+    def __init__(self, scopeObject, processes = 4):
         self.__done = False
+        self.__processes = processes
         self.__parallelized = False
         self.__scopeObject = scopeObject
         self.__tabCount = self.__scopeObject.get_line().count("\t")
@@ -41,7 +42,6 @@ class Parallelizer:
             funcMatch = re.match(r"(?P<funcCall>(?P<func>([a-zA-Z]*\.)*[a-zA-Z]+)\((?P<args>[^\n]*)\)[ \n]?)", line.strip())
             if(funcMatch != None):
                 args = funcMatch.group("args").replace(" ", "").split(",")
-                print("MATCH ", line)
                 if any([arg not in internalVars for arg in args]):
                     self.__scopeObject.get_child(line).replace("subresult" + uniqueId + ".append(({0}, {1}))\n".format('"{}"'.format(funcMatch.group("func")), ", ".join(["repr({})".format(arg) for arg in args])))
 
@@ -57,7 +57,7 @@ class Parallelizer:
 
         selfIndex = self.__scopeObject.get_parent().index_of(self.__scopeObject)
 
-        self.__scopeObject.get_parent().add_child("\t"*self.__tabCount + "p = Pool(4)\n", selfIndex+1)
+        self.__scopeObject.get_parent().add_child("\t"*self.__tabCount + "p = Pool(" + str(self.__processes) + ")\n", selfIndex+1)
         self.__scopeObject.get_parent().add_child("\t"*self.__tabCount + "result" + uniqueId + " = p.map(PARFOR" + uniqueId + ", [" + varName + " " + oldCode.rstrip()[:-1] + "])\n", selfIndex+2)
         self.__scopeObject.get_parent().add_child("\t"*self.__tabCount + "p.close()\n", selfIndex+3)
 
@@ -82,8 +82,8 @@ class Parallelizer:
                 variables.insert(varMatch.group("variable"))
         return variables
 
-    def __is_parallizable(self):
+    def __is_parallel_recursion(self):
         '''
-        Checks that the scope object is self-contained
+        Checks that the function is recursive and branching
         '''
         pass
