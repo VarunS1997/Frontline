@@ -1,6 +1,17 @@
 from TempFile import TempFile
 
+def compiletests():
+	def compile(subdir, parallize = True, Optimize = True):
+		t = TempFile("TestCode/" + subdir + "/in.py")
+	    t.run()
+	    t.writeTo("TestCode/" + subdir + "/out.py")
+
+	for d in ["ptest1", "ptest2"]:
+		compile(d, True, False)
+
+	for d in ["otest1"]:
+		compile(d, False, True)
+
 if __name__ == '__main__':
-    t = TempFile("TestCode/ptest2/in.py")
-    t.run()
-    t.writeTo("TestCode/ptest2/out.py")
+    compiletests()
+	print("ALL TESTS COMPILED")
