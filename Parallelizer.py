@@ -10,4 +10,13 @@ class Parallelizer:
             self.__done = True
             return
         elif(self.__scopeObject.get_type() != None):
-            
+            pass
+
+    def parallelize_loop(self):
+        pass
+
+    def __is_parallizable(self):
+        '''
+        Checks that the scope object is self-contained
+        '''
+        pass
