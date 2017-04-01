@@ -1,4 +1,5 @@
 from Parallelizer import Parallelizer
+from Optimizer import Optimizer
 from ScopeObject import ScopeObject
 
 class TempFile:
@@ -44,8 +45,10 @@ class TempFile:
 		def run_subroutine(child):
 			for subchild in child.get_children():
 				run_subroutine(subchild)
-			p = Parallelizer(child)
-			p.run()
+			o = Optimizer(child)
+			o.run()
+			# p = Parallelizer(child)
+			# p.run()
 			if(not self.__parallelImports and p.has_parallelized()):
 				self.__parallelImports = True
 				self.__root.add_child("from multiprocessing import Pool\n", 0)
