@@ -49,9 +49,9 @@ class TempFile:
 			o.run()
 			# p = Parallelizer(child)
 			# p.run()
-			if(not self.__parallelImports and p.has_parallelized()):
-				self.__parallelImports = True
-				self.__root.add_child("from multiprocessing import Pool\n", 0)
+			# if(not self.__parallelImports and p.has_parallelized()):
+			# 	self.__parallelImports = True
+			# 	self.__root.add_child("from multiprocessing import Pool\n", 0)
 
 		childrenList = list(self.__root.get_children())
 		for child in childrenList:

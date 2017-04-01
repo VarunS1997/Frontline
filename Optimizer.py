@@ -35,12 +35,16 @@ class Optimizer:
 		"""
 		variable_names = variables.keys()
 		constants = []
-		local = exec(str(self.__scopeObject)).locals()
+		local = self.__find_localized_variables()
 		for each in variable_names:
-			declaration = self.__get_declaration.match(variables[each]).group(1)
+			declaration = ''
 			function_args = None
 			try:
 				function_args = re.match(r"(?P<funcCall>(?P<func>([a-zA-Z]*\.)*[a-zA-Z]+)\((?P<args>[^+\-/*\n]*)\)[ \n])",variables[each]).group('args').split(',')
+			except:
+				pass
+			try:
+				declaration = self.__get_declaration.match(variables[each]).group(1)
 			except:
 				pass
 			if re.match(r"\"\w*\"|\d*",declaration) != None:
@@ -51,7 +55,7 @@ class Optimizer:
 						constants.append(variables[each])
 		return constants
 
-	def eval_expressions(self, regex):
+	def eval_expressions(self):
 		"""
 		Evaluates all expressions within the scope
 		"""
@@ -75,9 +79,20 @@ class Optimizer:
 		variables = self.__find_variables()
 		constants = self.find_constants(variables)
 		for each in constants:
-			for line in self.scopeObject():
+			for line in self.__scopeObject:
 				if each == str(line):
 					line.ascend_scope()
+
+	def __find_localized_variables(self)-> list:
+		"""
+        returns a list of variable declarations
+        """
+		variables = set()
+		for line in self.__scopeObject:
+			varMatch = re.match(r"(?P<variable>(\w)+)(\s*)=(\s*)(\w|\.|\'|\")+", line)
+			if(varMatch != None):
+				variables.insert(varMatch.group("variable"))
+		return variables
 
 	def run(self):
 		self.move_variable_dec()
