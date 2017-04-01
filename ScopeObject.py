@@ -22,15 +22,19 @@ class ScopeObject:
 
 	def ascend_scope(self):
 		''' moves the requested line to a higher scope if possible, return false if not'''
-		if self.is_root():
+		def remove_ltab(child):
+			child.__raw_replace(child.get_line()[1:])
+			for subchild in child.get_children():
+				remove_ltab(subchild)
+		if self.is_root() or self.__parent.is_root():
 			return False
 		else:
-			self.become_child_of(self.__parent.get_parent())
+			pindex = self.__parent.get_parent().index_of(self.__parent)
+			self.__parent.remove_child(self)
+			self.__parent = self.__parent.get_parent()
+			self.__parent.add_child(self, pindex)
+			remove_ltab(self)
 
-	def become_child_of(self, other):
-		other.add_child(self)
-		self.__parent.remove_child(self)
-		self.__parent = other
 
 	def refactor(self, old_name, new_name):
 		self.__line.replace(old_name, new_name)
@@ -39,7 +43,7 @@ class ScopeObject:
 
 	def replace(self, new_line: str):
 		''' replace the old lines with the new line '''
-		self.__line = "\t"*self.__line.count("\t") + w_line
+		self.__line = "\t"*self.__line.count("\t") + new_line
 
 	def __iter__(self):
 		''' iterates line by line '''
@@ -75,6 +79,9 @@ class ScopeObject:
 
 		nchild.__parent = self
 
+	def set_parent(self, other):
+		self.__parent = other
+
 	def index_of(self, child):
 		for i, c in enumerate(self.__children):
 			if child == c:
@@ -90,7 +97,7 @@ class ScopeObject:
 		return self.__children
 
 	def remove_child(self, rchild):
-		if(isinstance(new_child, str)):
+		if(isinstance(rchild, str)):
 			for child in self.__children:
 				if(child.get_line() == child):
 					remove_child(child)
@@ -110,8 +117,11 @@ class ScopeObject:
 	def get_parent(self):
 		return self.__parent
 
+	def __raw_replace(self, new):
+		self.__line = new
+
 	def __eq__(self, other):
-		if isinstance(other, SourceObject):
+		if isinstance(other, ScopeObject):
 			return self.__id == other.__id
 		else:
 			return False
@@ -120,8 +130,9 @@ class ScopeObject:
 		''' returns the type of scope that the code is '''
 		if(self.__line == None):
 			return None
-		CodeTypes = {"for": "FORLOOP", "while": "WHILELOOP", "def" : "FUNCTION", "class": "CLASS"}
+		CodeTypes = {"for": "FORLOOP", "while": "WHILELOOP", "def" : "FUNCTION", "class": "CLASS", "if": "IF"}
+		code = self.__line.replace(" ", "").strip().lower()
 		for k,v in CodeTypes.items():
-			if(self.__line.rstrip().lower().startswith(k)):
+			if(code.startswith(k)):
 				return v
 		return "STATEMENT"

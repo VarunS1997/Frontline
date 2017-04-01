@@ -10,27 +10,30 @@ class TempFile:
 		tabCount = 0
 
 		for line in file:
-			cTabs = line.count("\t")
+			fline = line.replace("    ", "\t")
+			cTabs = fline.count("\t")
+			print("READING: ", fline.encode("unicode-escape"))
+			print("CTABS: ", cTabs, " === tabCount: ", tabCount)
 			if(line.rstrip() == ""):
 				continue
 			elif(cTabs == tabCount + 1): # deeper
 				tabCount += 1
-				newchild = ScopeObject(line, scopeObjPtr)
+				scopeObjPtr = scopeObjPtr.get_children()[-1]
+				newchild = ScopeObject(fline, scopeObjPtr)
 				scopeObjPtr.add_child(newchild)
-				scopeObjPtr = newchild
 			else:
 				while tabCount > cTabs: # ascend scopes
 					tabCount -= 1
 					scopeObjPtr = scopeObjPtr.get_parent()
-				newchild = ScopeObject(line, scopeObjPtr)
+				newchild = ScopeObject(fline, scopeObjPtr)
 				scopeObjPtr.add_child(newchild)
-
 
 		file.close()
 		while not scopeObjPtr.is_root():
 			scopeObjPtr = scopeObjPtr.get_parent()
 		self.__root = scopeObjPtr
 		self.__done = False
+		self.__parallelImports = False
 
 	def __str__(self):
 		'''Calling str(TempFile) returns a string of current file (with modifications)'''
@@ -39,13 +42,17 @@ class TempFile:
 	def run(self):
 		''' Runs the optimizer and the parallelizer by calling their run functions on each scope object in order of ascending scope '''
 		def run_subroutine(child):
-			for subchild in child.get_children:
+			for subchild in child.get_children():
 				run_subroutine(subchild)
 			p = Parallelizer(child)
+			p.run()
+			if(not self.__parallelImports and p.has_parallelized()):
+				self.__parallelImports = True
+				self.__root.add_child("from multiprocessing import Pool\n", 0)
 
-		for child in self.__root.get_children:
+		childrenList = list(self.__root.get_children())
+		for child in childrenList:
 			run_subroutine(child)
-
 		self.__done = True
 
 	def is_done(self):
@@ -57,6 +64,11 @@ class TempFile:
 		writefile = open(root_dir, "w")
 		writefile.write(str(self))
 		writefile.close()
+		print("="*20)
+		print("FULL WRITING:")
+		print("="*20)
+		print(str(self.__root))
+		print("="*20)
 
 	def get_root(self):
 		return self.__root
