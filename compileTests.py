@@ -8,7 +8,7 @@ def compiletests():
 		t.run()
 		t.writeTo("TestCode/" + subdir + "/out.py")
 
-	for d in ["ptest1", "ptest2"]:
+	for d in ["ptest1", "ptest2", "ptest3"]:
 		compile(d, True, False)
 
 	for d in ["otest1"]:
