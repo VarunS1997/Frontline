@@ -41,6 +41,14 @@ class ScopeObject:
 			for line in child:
 				yield line
 
+	def get_type(self):
+		''' Possible types are FUNCTION LOOP CLASS STATEMENT '''
+		return self.__scopeType
+
+	def is_statement(self):
+		''' returns if this scope object represents a statement '''
+		return len(self.__children) == 0
+
 	# THE FOLLLOWING IS TREE PROCESSING, UNNEEDED FOR YOU GUYS
 	def add_child(self, new_child, index = None):
 		''' inserts another line of code at the specified index (default end) '''
@@ -57,13 +65,6 @@ class ScopeObject:
 	def size_of(self):
 		''' returns the number of contained lines/scopes '''
 		return len(self.__children)
-
-	def get_type(self):
-		return self.__scopeType
-
-	def is_statement(self):
-		''' returns if this scope object represents a statement '''
-		return len(self.__children) == 0
 
 	def is_root(self):
 		return self.__parent == None
