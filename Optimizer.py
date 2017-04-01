@@ -3,7 +3,7 @@ import re
 
 class Optimizer:
 	def __init__(self, scopeObject):
-		self.__variable_regex_single = re.compile(r"(?P<variable>(\w|\d|\.|\[|\]|\'|\")+)\s*=\s*(\w|\d|\.|\[|\]|\'|\"|\{|\})+(\n|(\(\s*(\w+\s*,\s*)*(\w)*\s*\)))")
+		self.__variable_regex_single = re.compile(r"((?P<variable>(\w|\d|\.|\[|\]|\'|\")+)\s*=\s*(\w|\d|\.|\[|\]|\'|\"|\{|\})+(\n|(\(\s*(\w+\s*,\s*)*(\w)*\s*\))))")
 		self.__variable_regex_operators = re.compile(r"(?P<variable>(\w|\d|\.|\[|\]|\'|\")+)\s*=\s*((\w+)[^\W]*\s*[\-\+\*\/]+\s*)+(\w+[\w\d\.\[\]\'\"]*)\n")
 		self.__variable_regex_operater_equals = re.compile(r"(?P<variable>(\w|\d|\.|\[|\]|\'|\")+)\s*[\+\-]=\s*.*")
 		self.__get_declaration = re.compile(r"\w+\s*=\s*(.+)")
@@ -79,8 +79,9 @@ class Optimizer:
 		variables = self.__find_variables()
 		constants = self.find_constants(variables)
 		for each in constants:
-			for line in self.__scopeObject:
-				if each == str(line):
+			for line in self.__scopeObject.get_children():
+				temp = line
+				if each == str(temp).strip()+"\n":
 					line.ascend_scope()
 
 	def __find_localized_variables(self)-> list:
