@@ -7,7 +7,7 @@ class ScopeObject:
 		self.__parent = parent
 		self.__id = ScopeObject.idCounter
 
-		scopeObject.idCounter += 1
+		ScopeObject.idCounter += 1
 
 	def get_line(self):
 		return self.__line
@@ -118,6 +118,8 @@ class ScopeObject:
 
 	def __typeOfScope(self):
 		''' returns the type of scope that the code is '''
+		if(self.__line == None):
+			return None
 		CodeTypes = {"for": "FORLOOP", "while": "WHILELOOP", "def" : "FUNCTION", "class": "CLASS"}
 		for k,v in CodeTypes.items():
 			if(self.__line.rstrip().lower().startswith(k)):
