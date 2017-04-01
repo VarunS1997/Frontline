@@ -22,7 +22,7 @@ class ScopeObject:
 		if self.is_root():
 			return False
 		else:
-			self.become_child_of(self.__parent.get_parent()
+			self.become_child_of(self.__parent.get_parent())
 
 	def become_child_of(self, other):
 		other.add_child(self)

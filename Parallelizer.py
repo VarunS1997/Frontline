@@ -10,3 +10,4 @@ class Parallelizer:
             self.__done = True
             return
         elif(self.__scopeObject.get_type() != None):
+            
