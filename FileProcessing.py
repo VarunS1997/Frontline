@@ -1,10 +1,14 @@
 class ScopeObject:
+	idCounter = 0
 	def __init__(self, line: str, scope_type: str, parent):
 		''' takes a line of python code and scope type and parent node '''
 		self.__line = line
 		self.__scopeType = scope_type
 		self.__children = []
 		self.__parent = parent
+		self.__id = ScopeObject.idCounter
+
+		scopeObject.idCounter += 1
 
 	def get_line(self):
 		return self.__line
@@ -28,6 +32,11 @@ class ScopeObject:
 		other.add_child(self)
 		self.__parent.remove_child(self)
 		self.__parent = other
+
+	def refactor(self, old_name, new_name):
+		self.__line.replace(old_name, new_name)
+		for child in self.__children:
+			child.refactor(old_name, new_name)
 
 	def replace(self, new_line: str):
 		''' replace the old lines with the new line '''
@@ -59,8 +68,17 @@ class ScopeObject:
 
 		new_child.__parent = self
 
+	def index_of(self, child):
+		for i, c in enumerate(self.__children):
+			if child == c:
+				return i
+		return -1
+
 	def remove_child(self, child):
 		self.__children.remove(child)
+
+	def get_id(self):
+		return self.__id
 
 	def size_of(self):
 		''' returns the number of contained lines/scopes '''
@@ -71,6 +89,12 @@ class ScopeObject:
 
 	def get_parent(self):
 		return self.__parent
+
+	def __eq__(self, other):
+		if isinstance(other, SourceObject):
+			return self.__id == other.__id
+		else:
+			return False
 
 class TempFile:
 	def __init__(self, file_address: str):
@@ -126,7 +150,7 @@ class TempFile:
 
 	def __typeOfScope(self, code: str):
 		''' returns the type of scope that the code is '''
-		CodeTypes = {"for": "LOOP", "while": "LOOP", "def" : "FUNCTION", "class": "CLASS"}
+		CodeTypes = {"for": "FORLOOP", "while": "WHILELOOP", "def" : "FUNCTION", "class": "CLASS"}
 		for k,v in CodeTypes.items():
 			if(code.rstrip().lower().startswith(k)):
 				return v
