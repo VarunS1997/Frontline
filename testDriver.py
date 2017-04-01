@@ -3,7 +3,7 @@ from TempFile import TempFile
 def compiletests():
 	def compile(subdir, parallize = True, Optimize = True):
 		t = TempFile("TestCode/" + subdir + "/in.py")
-	    t.run()
+		t.run()
 	    t.writeTo("TestCode/" + subdir + "/out.py")
 
 	for d in ["ptest1", "ptest2"]:
