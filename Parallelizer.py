@@ -14,7 +14,7 @@ class Parallelizer:
         scopeType = self.__scopeObject.get_type()
         print("PROCESSING TYPE " + self.__scopeObject.get_type() + " : " + str(self.__scopeObject.get_line().encode("unicode-escape")))
         if(scopeType != None):
-            if(scopeType not in ["FUNCTION", "FORLOOP", "WHILELOOP"]):
+            if(scopeType not in ["FUNCTION", "FORLOOP"]):
                 self.__done = True
                 return
             elif(scopeType == "FORLOOP"):
