@@ -35,28 +35,50 @@ class TempFile:
 		self.__root = scopeObjPtr
 		self.__done = False
 		self.__parallelImports = False
+		self.__parallelize = True
+		self.__optimize = True
 
 	def __str__(self):
 		'''Calling str(TempFile) returns a string of current file (with modifications)'''
 		return str(self.__root)
 
+	def set_parallize(self, b):
+		self.__parallelize = b
+
+	def set_optimize(self, b):
+		self.__optimize = b
+
 	def run(self):
 		''' Runs the optimizer and the parallelizer by calling their run functions on each scope object in order of ascending scope '''
+		if(self.__optimize):
+			self.__run__optimizer()
+		if(self.__parallelize):
+			self.__run_parallizer()
+
+	def __run_parallizer(self):
+		def run_subroutine(child):
+			for subchild in child.get_children():
+				run_subroutine(subchild)
+			p = Parallelizer(child)
+			p.run()
+			if(not self.__parallelImports and p.has_parallelized()):
+				self.__parallelImports = True
+				self.__root.add_child("from multiprocessing import Pool\n", 0)
+
+		childrenList = list(self.__root.get_children())
+		for child in childrenList:
+			run_subroutine(child)
+
+	def __run__optimizer(self):
 		def run_subroutine(child):
 			for subchild in child.get_children():
 				run_subroutine(subchild)
 			o = Optimizer(child)
 			o.run()
-			# p = Parallelizer(child)
-			# p.run()
-			# if(not self.__parallelImports and p.has_parallelized()):
-			# 	self.__parallelImports = True
-			# 	self.__root.add_child("from multiprocessing import Pool\n", 0)
 
 		childrenList = list(self.__root.get_children())
 		for child in childrenList:
 			run_subroutine(child)
-		self.__done = True
 
 	def is_done(self):
 		''' returns if the file processing and optimizing is done '''
