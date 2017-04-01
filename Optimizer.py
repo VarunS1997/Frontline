@@ -9,13 +9,11 @@ class Optimizer:
         self.__get_declaration = re.compile(r"\w+\s*=\s*(.+)")
         self.__scopeObject = scopeObject
 
-<<<<<<< HEAD
-    def _find_variables(self)-> dict:
-=======
-    def __find_variables(self)-> list:
->>>>>>> 6c25b6ec16b589efa75e01e5cbddcb7c7c48a7a6
+
+    def __find_variables(self)-> dict:
+
 		"""
-		returns a list of variable declarations
+		returns a dict of the variables and their declarations
 		"""
 		variables = {}
 		for each in self.__variables_regex_single.findall(str(self.__scopeObject)):
@@ -26,7 +24,7 @@ class Optimizer:
 			variables[each[1]] = each[0]
 		return variables
 
-<<<<<<< HEAD
+
 	def find_constants(self, variables) -> list:
 		"""
 		Finds constant variables within scope
@@ -61,35 +59,19 @@ class Optimizer:
 				line.replace(new_line)
 			except:
 				pass
-=======
-	def __is_localized(self, local: dict) -> bool:
-		"""
-		Determines weather the variables are local to the loop
-		"""
-		variables = self.__find_variables()
-		for each in variables:
-			if each not in local.keys():
-				return False
-		return True
->>>>>>> 6c25b6ec16b589efa75e01e5cbddcb7c7c48a7a6
+
 
 	def move_variable_dec(self):
 		"""
 		Moves the variable to a higher scope if it is constant
 		"""
-<<<<<<< HEAD
+
 		variables = self._find_variables()
 		constants = self.find_constants(variables)
 		for each in constants:
 			for line in self.scopeObject():
 				if each == str(line):
 					line.ascend_scope()
-=======
-		local = exec(str(self.__scopeObject)).locals()
-		if not self.__is_localized(local):
-			for each in self.__scopeObject:
-
->>>>>>> 6c25b6ec16b589efa75e01e5cbddcb7c7c48a7a6
 
     def run(self):
         self.move_variable_dec()
