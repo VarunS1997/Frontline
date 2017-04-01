@@ -1,4 +1,4 @@
-from FileProcessing import ScopeObject
+from ScopeObject import ScopeObject
 import re
 
 class Optimizer:
