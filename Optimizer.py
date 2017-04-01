@@ -3,6 +3,7 @@ import re
 
 class Optimizer:
     def __init__(self, scopeObject):
+    	self.__variable_regex = re.compile(r"(?P<variable>(\w|\d|\.)+)(\s?)=(\s?)(\w|\d|\.|\'|\")+")
         self.__scopeObject = scopeObject
 
     def _find_variables(self)-> list:
@@ -10,7 +11,7 @@ class Optimizer:
 		returns a list of variable declarations
 		"""
 		variables = []
-		for each in variables_regex.findall(str(self.__scopeObject)):
+		for each in self.__variables_regex.findall(str(self.__scopeObject)):
 			variables.append(each[1])
 		return variables
 
