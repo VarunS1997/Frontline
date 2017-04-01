@@ -1,10 +1,12 @@
 from TempFile import TempFile
 
 def compiletests():
-	def compile(subdir, parallize = True, Optimize = True):
+	def compile(subdir, parallize = True, optimize = True):
 		t = TempFile("TestCode/" + subdir + "/in.py")
+		t.set_parallize(parallize)
+		t.set_optimize(optimize)
 		t.run()
-	    t.writeTo("TestCode/" + subdir + "/out.py")
+		t.writeTo("TestCode/" + subdir + "/out.py")
 
 	for d in ["ptest1", "ptest2"]:
 		compile(d, True, False)
@@ -13,5 +15,5 @@ def compiletests():
 		compile(d, False, True)
 
 if __name__ == '__main__':
-    compiletests()
+	compiletests()
 	print("ALL TESTS COMPILED")

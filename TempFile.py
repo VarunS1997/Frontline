@@ -32,6 +32,7 @@ class TempFile:
 		file.close()
 		while not scopeObjPtr.is_root():
 			scopeObjPtr = scopeObjPtr.get_parent()
+		self.__file_address = file_address
 		self.__root = scopeObjPtr
 		self.__done = False
 		self.__parallelImports = False
@@ -102,11 +103,3 @@ class TempFile:
 		''' enables for each loop -- a line by line '''
 		for line in self.__root:
 			yield line
-
-	def __add__(self, other):
-		''' combines two files (for parallelization purposes) '''
-		if isinstance(other, TempFile):
-			for child in other.get_root():
-				self.__root.add_child(child)
-		elif isinstance(other, ScopeObject):
-			self.__root.add_child(other)
