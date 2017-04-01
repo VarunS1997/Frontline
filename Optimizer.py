@@ -7,6 +7,11 @@ class Optimizer:
         self.__variable_regex_operators = re.compile(r"(?P<variable>(\w|\d|\.|\[|\]|\'|\")+)\s*=\s*((\w+)[^\W]*\s*[\-\+\*\/]+\s*)+(\w+[\w\d\.\[\]\'\"]*)\n")
         self.__variable_regex_operater_equals = re.compile(r"(?P<variable>(\w|\d|\.|\[|\]|\'|\")+)\s*[\+\-]=\s*.*")
         self.__get_declaration = re.compile(r"\w+\s*=\s*(.+)")
+        self.__get_string_addition = re.compile(r"([\'\"]\w+[\'\"]\s*\+\s*)+[\'\"]\w+[\'\"]")
+        self.__get_string_multiplication = re.compile(r"([\"\']\w+[\"\']|\d+)\s*\*\s*([\"\']\w+[\"\']|\d+)")
+        self.__get_int_eval = re.compile(r"((\d+[\+\-\*\/])+\d+)")
+        self.__get_float_eval = re.compile(r"(\d+.\d+\s*[\+\/\*\-]\s*)+\d+.\d+")
+        self.__list_of_evals = [self.__get_string_multiplication, self.__get_string_addition, self.__get_int_eval, self.__get_float_eval]
         self.__scopeObject = scopeObject
 
 
@@ -47,25 +52,27 @@ class Optimizer:
 						constants.append(variables[each])
 		return constants:
 
-	def eval_expressions(self):
+	def eval_expressions(self, regex):
 		"""
-		Evaluates expressions within the scope
+		Evaluates all expressions within the scope
 		"""
-		for line in self.__scopeObject():
-			try:
-				expression = re.match(r"((\d+[\+\-\*\/])+\d+)", str(line)).group(0)
-				new_line = str(line)- expression
-				new_line = new_line + eval(expression)
-				line.replace(new_line)
-			except:
-				pass
+		for line in self.__scopeObject:
+			for regex in self.__list_of_evals:
+				try:
+					expression = regex.match(str(line)).group(0)
+					new_line = list(str(line))
+					for each in list(expression):
+						new_line.remove(each)
+					new_line = ''.join(new_line)+ eval(expression)
+					line.replace(new_line)
+				except:
+					pass
 
 
 	def move_variable_dec(self):
 		"""
 		Moves the variable to a higher scope if it is constant
 		"""
-
 		variables = self._find_variables()
 		constants = self.find_constants(variables)
 		for each in constants:
