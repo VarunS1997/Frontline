@@ -1,10 +1,8 @@
 a = "a"
 b = "b"
-li = []
+ab = a + b
 def simple():
 	for i in range(10):
-		ab = a + b
-		li.append(a)
-		li.append(b)
-		li.append(c)
-	return c
+		li = []
+		c += b
+		a = 8	return c
