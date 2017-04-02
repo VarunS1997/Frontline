@@ -68,4 +68,5 @@ class MassAnalyzer:
 			self.__data["TotalTime"] = totalTime
 			self.__data["AverageTime"] = totalTime / totalSuccess
 			self.__data["Trials"] = totalSuccess
+			self.__processed = True
 		return self.__data
