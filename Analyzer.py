@@ -72,9 +72,9 @@ def testCase(strin, trials):
 	result += "="*20 + "\n"
 	result += "RESULTS: TEST {0} '{1}'" + "\n"
 	result += "="*20 + "\n"
-	result += "TOTAL TIME: " + str(nResults["TotalTime"]) + "="*5 + ">" + str(oResults["TotalTime"]) + "\n"
-	result += "AVERAGE TIME: " + str(nResults["AverageTime"]) + "="*5 + ">" + str(oResults["AverageTime"]) + "\n"
-	result += "TRIALS: " + str(nResults["Trials"]) + "="*5 + ">" + str(oResults["Trials"]) + "\n"
+	result += "TOTAL TIME: " + str(nResults["TotalTime"]) + "="*3 + ">" + str(oResults["TotalTime"]) + "="*3 + ">" + "% Improvement: " + str(round((nResults["TotalTime"]-oResults["TotalTime"])/nResults["TotalTime"], 3)) + "\n"
+	result += "AVERAGE TIME: " + str(nResults["AverageTime"]) + "="*3 + ">" + str(oResults["AverageTime"]) + "="*3 + ">" + "% Improvement: " + str(round((nResults["AverageTime"]-oResults["AverageTime"])/nResults["AverageTime"], 3)) + "\n"
+	result += "TRIALS: " + str(nResults["Trials"]) + "="*3 + ">" + str(oResults["Trials"]) + "="*3 + ">" + "\n"
 	result += "="*20 + "\n"
 	result += "="*20 + "\n"
 	return result

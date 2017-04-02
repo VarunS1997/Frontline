@@ -44,7 +44,7 @@ class Parallelizer:
             funcMatch = re.match(r"(?P<funcCall>(?P<func>([a-zA-Z]*\.)*[a-zA-Z]+)\((?P<args>[^\n]*)\)[ \n]?)", line.strip())
             assignMatch = re.match(r"(?P<variable>[^\[]+)\[(?P<arg1>[^\]]+)\] *= *(?P<arg2>[^\n]+)", line.strip())
             if(funcMatch != None):
-                args = funcMatch.group("args").replace(" ", "").split(",")
+                args = re.split(", *", funcMatch.group("args"))
 
                 basis = funcMatch.group("func")
                 basis = basis[:basis.index(".") if "." in basis else len(basis)]
@@ -92,11 +92,11 @@ class Parallelizer:
         for line in self.__scopeObject:
             varMatch = re.match(r"(?P<variable>(\w)+)(\s*)=(\s*)(\w|\.|\'|\")+", line.strip())
             defMatch = re.match(r"def [a-zA-z][a-zA-Z0-9]*\((?P<args>[^\)]*)\):", line.strip())
-            forMatch = re.match(r"for (?P<var>[a-zA-z][a-zA-z0-9]*) in [^:]*:", line.strip())
+            forMatch = re.match(r"for (?P<var>[a-zA-z][a-zA-z0-9]*) in [^:\]]*", line.strip())
             if(varMatch != None):
                 variables.add(varMatch.group("variable"))
             elif(defMatch != None):
-                for var in defMatch.group("args").replace(" ", "").split(","):
+                for var in re.split(", *", defMatch.group("args")):
                     variables.add(var)
             elif(forMatch != None):
                 variables.add(forMatch.group("var"))
@@ -107,10 +107,10 @@ class Parallelizer:
         for child in ptr.get_children():
             if child.get_type() == "STATEMENT":
                 varMatch = re.match(r"(?P<variable>(\w)+)(\s*)=(\s*)(\w|\.|\'|\")+", child.get_line().strip())
-                importMatch = re.match(r"from [a-zA-z0-9]* import (?P<variable>[a-zA-z0-9]*)", child.get_line().strip())
+                importMatch = re.match(r"from [a-zA-z0-9.]* import (?P<variable>[a-zA-z0-9]*)", child.get_line().strip())
                 if varMatch != None:
                     variables.add(varMatch.group("variable"))
-                else:
+                elif importMatch != None:
                     variables.add(importMatch.group("variable"))
 
         return variables

@@ -44,7 +44,7 @@ if __name__ == '__main__':
 		except Exception as e:
 			print()
 			print("TEST FAILURE!!!")
-			print(e)
+			print(str(e))
 			print()
 		if not fullSpeed and "q" in input("Press enter to continue, or q to quit").lower():
 			break
