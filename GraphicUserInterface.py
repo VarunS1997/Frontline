@@ -207,6 +207,12 @@ class GUI():
         self.root.wm_title(str(self.root_directory) + ", No file open yet.")
 
     def event_open_file(self, event = None, canvas_path = None):
+        '''
+        Opens a file into the text editor.
+        '''
+        if self.canvas_active == False:
+            return
+
         if canvas_path == None:
             self.text_editor.delete('1.0', tk.END)
             self.file_object = filedialog.askopenfile(defaultextension = '.py', filetypes = [('Python files', '.py'), ('all files', '.*')])
@@ -234,6 +240,8 @@ class GUI():
         Attempts to save a file with the current filename.
         If file is not saved yet, prompt user for filename.
         '''
+        if self.canvas_active == False:
+            return
         if self.file_object == None:
             self.event_save_as_file()
         else:
@@ -247,6 +255,8 @@ class GUI():
         Prompts the user for a save destination and file name
         and saves the file.
         '''
+        if self.canvas_active == False:
+            return
         self.file_object = tk.filedialog.asksaveasfile(defaultextension = '.py', filetypes = [('Python files', '.py'), ('all files', '.*')])
         if self.file_object == None:
             print('Broke the loop...')
@@ -255,9 +265,10 @@ class GUI():
         self.file_object.flush()
         self.file_object.close()
 
-    # -------- Mainloop ---------
-
     def mainloop(self):
+        '''
+        Runs the mainloop of the tkinter window.
+        '''
         self.root.mainloop()
 
 if __name__ == "__main__":
