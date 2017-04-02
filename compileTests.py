@@ -22,7 +22,8 @@ def compiletests():
 if __name__ == '__main__':
 	compiletests()
 	print("ALL TESTS COMPILED")
-	if "y" in input("Run all tests?").lower():
+	userin = input("Run all tests?").lower().strip()
+	if "y" in userin or userin == "":
 		for i, test in enumerate(allTests):
 			print("ANALYZING ", i)
 			testCase(test)
