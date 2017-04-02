@@ -1,6 +1,7 @@
 import tkinter as tk
 import tkinter.filedialog as filedialog
 from pathlib import Path
+from TempFile import TempFile
 import os
 
 class GUI():
@@ -99,18 +100,19 @@ class GUI():
         #drawlist = drawlist_dirs.append(drawlist_files)
         counter = 0
         for item in self.pathlist:
-            self.draw_item(item.name, item.is_dir(), counter)
+            self.draw_item(item.name, item.is_dir(), counter, (len(item.parts) - len(self.root_directory.parts)) - 1)
             counter += 1
 
-    def draw_item(self, name: str, isdir: bool, _index: int):
+    def draw_item(self, name: str, isdir: bool, _index: int, indent_mult: int):
         print(isdir)
+        indent_const = 10
         if isdir:
             print(6, (((500 / 20) / 500) * (1 + _index)) * 500)
-            self.file_explorer.create_bitmap(18, ((((500 / 20) / 500) * (1 + _index)) * 500) - 10, bitmap = self.dir_xbm)
-            self.file_explorer.create_text(40, ((((500 / 20) / 500) * (1 + _index)) * 500) - 10, text = name, anchor = tk.W)
+            self.file_explorer.create_bitmap(18 + (indent_const * indent_mult), ((((500 / 20) / 500) * (1 + _index)) * 500) - 10, bitmap = self.dir_xbm)
+            self.file_explorer.create_text(40 + (indent_const * indent_mult), ((((500 / 20) / 500) * (1 + _index)) * 500) - 10, text = name, anchor = tk.W)
         else:
-            self.file_explorer.create_bitmap(18, ((((500 / 20) / 500) * (1 + _index)) * 500) - 10, bitmap = self.py_xbm)
-            self.file_explorer.create_text(40, ((((500 / 20) / 500) * (1 + _index)) * 500) - 10, text = name, anchor = tk.W)
+            self.file_explorer.create_bitmap(18 + (indent_const * indent_mult), ((((500 / 20) / 500) * (1 + _index)) * 500) - 10, bitmap = self.py_xbm)
+            self.file_explorer.create_text(40 + (indent_const * indent_mult), ((((500 / 20) / 500) * (1 + _index)) * 500) - 10, text = name, anchor = tk.W)
         
 
     def redraw_file_explorer(self):
@@ -123,7 +125,7 @@ class GUI():
         
         counter = 0
         for item in self.pathlist:
-            self.draw_item(item.name, item.is_dir(), counter)
+            self.draw_item(item.name, item.is_dir(), counter, (len(item.parts) - len(self.root_directory.parts)) - 1)
             counter += 1
            
     def recursive_iterdir(self, path_obj: Path):
@@ -139,16 +141,22 @@ class GUI():
 
         return pathlist
 
-    def create_directories(self, filename):
+    def create_directories(self):
         '''
         Creates the directiories for the pseudocode and legal code.
         '''
-        ofile_dir = "\\OFiles\\" + filename + ".py"
-        autopy_dir = "\\AutoPy\\" + filename + ".py"
-        if not Path("OFiles").exists() or not Path("AutoPy").exists():
-            os.makedirs(os.path.dirname(ofile_dir), exist_ok=True)
-            os.makedirs(os.path.dirname(autopy_dir), exist_ok=True)
 
+        print("Output is", str(self.root_directory) / Path("OFiles"))
+
+        if not (str(self.root_directory) / Path("OFiles")).exists() or \
+        not (str(self.root_directory) / Path("AutoPy")).exists():
+
+            try:
+                os.mkdir(str(str(self.root_directory) / Path("OFiles")))
+                os.mkdir(str(str(self.root_directory) / Path("AutoPy")))
+            except:
+                print("Didn't Work!")
+            
     # ----------   FILE I/O   -----------
     def event_exit(self, event = None):
         '''
@@ -160,7 +168,9 @@ class GUI():
             exit()
 
     def event_execute(self, event = None):
-        pass
+        new_temp = TempFile(self.file_path.open('r'))
+
+        new_temp.writeTo(self.root_directory / Path('AutoPy') / self.file_path.name)        
 
     def event_canvas(self, event):
         '''
@@ -190,7 +200,11 @@ class GUI():
         self.text_editor.delete('1.0', tk.END)
         self.root_directory = Path(filedialog.askdirectory())
 
+        print(str(self.root_directory))
+        self.create_directories()
         self.init_file_explorer()
+
+        self.root.wm_title(str(self.root_directory) + ", No file open yet.")
 
     def event_open_file(self, event = None, canvas_path = None):
         if canvas_path == None:
@@ -199,7 +213,7 @@ class GUI():
             if self.file_object == None:
                 return
             self.text_editor.insert(tk.END, self.file_object.read())
-
+            self.file_path = Path(self.file_object.name)
             self.file_object.close()
 
             self.init_file_explorer()
@@ -213,6 +227,7 @@ class GUI():
             self.file_object.close()
             self.redraw_file_explorer()
             
+        self.root.wm_title(str(self.root_directory) + ", " + str(self.file_path))
 
     def event_save_file(self, event = None):
         '''
