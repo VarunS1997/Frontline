@@ -99,17 +99,18 @@ class GUI():
         #drawlist = drawlist_dirs.append(drawlist_files)
         counter = 0
         for item in self.pathlist:
-            self.draw_item(item.name, item.is_dir, counter)
+            self.draw_item(item.name, item.is_dir(), counter)
             counter += 1
 
     def draw_item(self, name: str, isdir: bool, _index: int):
-        if isdir and name[:-4] != '.py':
+        print(isdir)
+        if isdir:
             print(6, (((500 / 20) / 500) * (1 + _index)) * 500)
             self.file_explorer.create_bitmap(18, ((((500 / 20) / 500) * (1 + _index)) * 500) - 10, bitmap = self.dir_xbm)
             self.file_explorer.create_text(40, ((((500 / 20) / 500) * (1 + _index)) * 500) - 10, text = name, anchor = tk.W)
         else:
-            self.file_explorer.create_bitmap(18, (((500 / 20) / 500) * (1 + _index)) * 500, bitmap = self.py_xbm)
-            self.file_explorer.create_text(40, (((500 / 20) / 500) * (1 + _index)) * 500, text = name, anchor = tk.W)
+            self.file_explorer.create_bitmap(18, ((((500 / 20) / 500) * (1 + _index)) * 500) - 10, bitmap = self.py_xbm)
+            self.file_explorer.create_text(40, ((((500 / 20) / 500) * (1 + _index)) * 500) - 10, text = name, anchor = tk.W)
         
 
     def redraw_file_explorer(self):
@@ -122,7 +123,7 @@ class GUI():
         
         counter = 0
         for item in self.pathlist:
-            self.draw_item(item.name, item.is_dir, counter)
+            self.draw_item(item.name, item.is_dir(), counter)
             counter += 1
            
     def recursive_iterdir(self, path_obj: Path):
