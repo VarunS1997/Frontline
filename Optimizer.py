@@ -49,7 +49,6 @@ class Optimizer:
 		variable_names = variables.keys()
 		constants = []
 		local = self.__find_localized_variables()
-		print(local)
 		for each in variable_names:
 			declaration = ''
 			try:
@@ -91,7 +90,9 @@ class Optimizer:
 
 	def move_data_structure_dec(self):
 		data = self.__find_data_structures()
+		print(data)
 		functions = self.__find_function_calls()
+		print(data != None)
 		if data != None and functions != None:
 			for each in data.keys():
 				if each not in functions.keys():
@@ -101,7 +102,8 @@ class Optimizer:
 		elif data != None:
 			for each in data.keys():
 				for line in self.__scopeObject.get_children():
-					if data[each] == str(line).strip():
+					print(each == str(line).strip())
+					if each == str(line).strip():
 						line.ascend_scope()
 
 	def __find_localized_variables(self)-> list:
@@ -123,5 +125,6 @@ class Optimizer:
 		self.move_variable_dec()
 		self.move_data_structure_dec()
 		self.move_variable_dec()
+		self.move_data_structure_dec()
 
 
