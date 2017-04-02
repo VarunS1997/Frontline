@@ -27,3 +27,5 @@ if __name__ == '__main__':
 		for i, test in enumerate(allTests):
 			print("ANALYZING ", i)
 			testCase(test)
+			if "q" in input("Press enter to continue, or q to quit").lower():
+				break

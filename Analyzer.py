@@ -38,7 +38,7 @@ class MassAnalyzer:
 	def __init__(self, main_py, tests = 100):
 		self.__analyzers = []
 		for i in range(tests):
-			self,__analyzers.append(Analyzer(main_py))
+			self.__analyzers.append(Analyzer(main_py))
 		self.__ready = True
 		self.__done = False
 		self.__processed = False
@@ -71,12 +71,8 @@ class MassAnalyzer:
 			self.__processed = True
 		return self.__data
 
-if __name__ == '__main__':
-	strin = input("Which TestCode Dir?")
-	testCase(strin)
-
 def testCase(strin):
-	normal = MassAnalyzer("TestCode/" + strin + "/in,py")
+	normal = MassAnalyzer("TestCode/" + strin + "/in.py")
 	optimal = MassAnalyzer("TestCode/" + strin + "/out.py")
 
 	normal.start()
@@ -88,3 +84,7 @@ def testCase(strin):
 	print("TOTAL TIME: ", nResults["TotalTime"], "="*20 + ">", oResults["TotalTime"])
 	print("AVERAGE TIME: ", nResults["AverageTime"], "="*20 + ">", oResults["AverageTime"])
 	print("TRIALS: ", nResults["Trials"], "="*20 + ">", oResults["Trials"])
+
+if __name__ == '__main__':
+	strin = input("Which TestCode Dir?")
+	testCase(strin)

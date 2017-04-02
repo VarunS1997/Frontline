@@ -1,7 +1,7 @@
+c += b
 a = "a"
 b = "b"
 ab = a + b
-c += b
 li = []
 a = 8
 def simple():

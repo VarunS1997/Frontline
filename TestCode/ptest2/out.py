@@ -3,7 +3,7 @@ from time import sleep
 def PARFOR20(i):
 	subresult20 = []
 	print("Running ", i)
-	sleep(3)
+	sleep(1)
 	print("Closing ", i)
 	return subresult20
 def main():
