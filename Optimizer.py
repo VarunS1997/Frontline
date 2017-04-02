@@ -18,10 +18,15 @@ class Optimizer:
 
 	def __find_variables(self)-> dict:
 
+<<<<<<< Updated upstream
+=======
+    def __find_variables(self)-> list:
+>>>>>>> Stashed changes
 		"""
 		returns a dict of the variables and their declarations
 		"""
 		variables = {}
+<<<<<<< Updated upstream
 		for each in self.__variable_regex_single.findall(str(self.__scopeObject)):
 			variables[each[1]] = each[0]
 		for each in self.__variable_regex_operators.findall(str(self.__scopeObject)):
@@ -79,6 +84,21 @@ class Optimizer:
 				except:
 					pass
 
+=======
+		for each in variables_regex.findall(str(self.__scopeObject)):
+			variables.insert(each[1])
+		return variables
+
+	def __is_localized(self, local: dict) -> bool:
+		"""
+		Determines weather the variables are local to the loop
+		"""
+		variables = self.__find_variables()
+		for each in variables:
+			if each not in local.keys():
+				return False
+		return True
+>>>>>>> Stashed changes
 
 	def move_variable_dec(self):
 		"""
@@ -108,6 +128,7 @@ class Optimizer:
 
 	def __find_localized_variables(self)-> list:
 		"""
+<<<<<<< Updated upstream
         returns a list of variable declarations
         """
 		variables = set()
@@ -124,4 +145,10 @@ class Optimizer:
 		self.eval_expressions()
 		self.move_variable_dec()
 		self.move_data_structure_dec()
+=======
+		local = exec(str(self.__scopeObject)).locals()
+		if not self.__is_localized(local):
+			for each in self.__scopeObject:
+
+>>>>>>> Stashed changes
 

@@ -14,6 +14,7 @@ class Parallelizer:
         self.__oldCode = self.__scopeObject.get_line()
 
     def run(self):
+<<<<<<< Updated upstream
         scopeType = self.__scopeObject.get_type()
         print("PROCESSING TYPE " + self.__scopeObject.get_type() + " : " + str(self.__scopeObject.get_line().encode("unicode-escape")))
         if(scopeType != None):
@@ -118,5 +119,19 @@ class Parallelizer:
     def __is_parallel_recursion(self):
         '''
         Checks that the function is recursive and branching
+=======
+        if(self.__scopeObject.get_type() not in ["FUNCTION", "LOOP"]):
+            self.__done = True
+            return
+        elif(self.__scopeObject.get_type() != None):
+            pass
+
+    def parallelize_loop(self):
+        pass
+
+    def __is_parallizable(self):
+        '''
+        Checks that the scope object is self-contained
+>>>>>>> Stashed changes
         '''
         pass
