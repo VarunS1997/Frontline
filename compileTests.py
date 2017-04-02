@@ -1,11 +1,9 @@
 from TempFile import TempFile
 from Analyzer import testCase
 
-ptests = ["ptest1", "ptest2", "ptest3", "ptest4"]
-otests = ["otest1", "otest2", "otest3","demo2"]
-dtests = ["demo1"]
-atests = ["atest1"]
-allTests = ptests + otests + dtests + atests
+ptests = ["ptest1", "ptest2", "ptest3", "ptest4", "demo1"]
+otests = ["otest1", "otest2", "otest3", "demo2"]
+allTests = ptests + otests
 
 def compiletests():
 	def compile(subdir, parallize = True, optimize = True):
@@ -20,12 +18,6 @@ def compiletests():
 
 	for d in otests:
 		compile(d, False, True)
-
-	for d in dtests:
-		compile(d, True, False)
-
-	for d in atests:
-		compile(d)
 
 if __name__ == '__main__':
 	compiletests()
