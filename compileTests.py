@@ -21,7 +21,7 @@ def compiletests():
 		compile(d, False, True)
 
 	for d in dtests:
-		compile(d)
+		compile(d, True, False)
 
 if __name__ == '__main__':
 	compiletests()
