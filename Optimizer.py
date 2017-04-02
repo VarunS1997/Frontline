@@ -8,7 +8,9 @@ class Optimizer:
 		self.__variable_regex_operater_equals = re.compile(r"((?P<variable>(\w|\d|\.|\[|\]|\'|\")+)\s*[\+\-]=\s*.*)")
 		self.__variable_regex_structures = re.compile(r"((.+)\s*=\s*[\[\{].*[\]\}])")
 		self.__variable_regex_functions = re.compile(r"(?P<funcCall>(?P<func>([a-zA-Z]*\.)*[a-zA-Z]+)\((?P<args>[^+\-/*\n]*)\)[ \n])")
-		self.__get_declaration = re.compile(r"\w+\s*=\s*(.+)")
+		self.__variable_regex_functions2 = re.compile(r"(\w+\s*=\s*(\w+\((?P<args>.*)\)))")
+		self.__find_variables = [self.__variable_regex_single, self.__variable_regex_functions, self.__variable_regex_operators, self.__variable_regex_structures,self.__variable_regex_functions2]
+		self.__get_declaration = re.compile(r"(\w+)\s*=\s*(.+)")
 		self.__get_string_addition = re.compile(r"(([\'\"]\w+[\'\"]\s*\+\s*)+[\'\"]\w+[\'\"])")
 		self.__get_string_multiplication = re.compile(r"([\"\']\w+[\"\']|\d+)\s*\*\s*([\"\']\w+[\"\']|\d+)")
 		self.__get_int_eval = re.compile(r"((\d+[\+\-\*\/])+\d+)")
@@ -17,19 +19,17 @@ class Optimizer:
 		self.__list_of_evals = [self.__get_string_multiplication, self.__get_string_addition, self.__get_int_eval, self.__get_float_eval, self.__get_both_eval]
 		self.__scopeObject = scopeObject
 
-	def __find_variables(self)-> dict:
+	def find_variables(self)-> list:
 
 		"""
-		returns a dict of the variables and their declarations
+		returns a list of the variables and their declarations
 		"""
-		variables = {}
-		for each in self.__variable_regex_operater_equals.findall(str(self.__scopeObject)):
-			variables[each[1]] = each[0]+ "\n"
-		for each in self.__variable_regex_single.findall(str(self.__scopeObject)):
-			variables[each[1]] = each[0]
-		for each in self.__variable_regex_operators.findall(str(self.__scopeObject)):
-			variables[each[1]] = each[0]
-
+		variables = []
+		for each in self.__scopeObject.get_children():
+			for regex in self.__find_variables:
+				variable = regex.findall(str(each))
+				if  variable != []:
+					variables.append(variable[0][0])
 		return variables
 
 	def __find_data_structures(self) -> dict:
@@ -54,17 +54,58 @@ class Optimizer:
 		"""
 		Finds constant variables within scope
 		"""
-		variable_names = variables.keys()
 		constants = []
+		print(variables)
 		local = self.__find_localized_variables()
-		for each in variable_names:
-			declaration = ''
-			try:
-				declaration = self.__get_declaration.match(variables[each]).group(1)
-			except:
-				pass
-			if re.match(r"\"\w*\"|\d*",declaration) != None:
-				constants.append(variables[each])
+		for each in variables:
+			if each[-1] == ']':
+				is_constant = False
+				for j in variables:
+					try:
+						if self.__get_declaration.match(each.strip()).group(0) + '.' == self.__variable_regex_functions.match(j).group(3):
+							is_constant = True
+						else:
+							print("hi")
+							is_constant = False
+							break
+					except:
+						is_constant = True
+				if is_constant:
+					constants.append(each)
+			elif self.__variable_regex_functions.match(each) == None and self.__variable_regex_functions2.match(each) == None:
+				declaration = ''
+				try:
+					declaration = self.__get_declaration.match(each).group(0)
+				except:
+					pass
+				if re.match(r"\"\w*\"|\d*",declaration) != None:
+					constants.append(each)
+			else:
+				print(each)
+				try:
+					args = self.__variable_regex_functions.match(each).group("args")
+				except:
+					args = self.__variable_regex_functions2.match(each).group("args")
+				args = args.split(',')
+				print(args)
+				is_constant = True
+				for i in args:
+					print(i in local)
+					if i in local:
+						is_constant = False
+				for j in variables:
+					try:
+						if self.__get_declaration.match(j.strip()).group(0) + '.' == self.__variable_regex_functions.match(each).group(3):
+							is_constant = True
+						else:
+							print("hi")
+							is_constant = False
+							break
+					except:
+						pass
+				if is_constant:
+					constants.append(each)
+
 		return constants
 
 	def eval_expressions(self):
@@ -99,40 +140,64 @@ class Optimizer:
 		"""
 		Moves the variable to a higher scope if it is constant
 		"""
-		variables = self.__find_variables()
+		variables = self.find_variables()
 		constants = self.find_constants(variables)
 		for each in constants:
 			for line in self.__scopeObject.get_children():
-				if each == str(line).strip()+"\n":
+				if each.strip() == str(line).strip():
 					line.ascend_scope()
 
-	def move_data_structure_dec(self):
-		"""
-		Moves a data structure to a higher scope if it is not mutated within the scope
-		"""
-		data = self.__find_data_structures()
-		functions = self.__find_function_calls()
-		if data != {} and functions != {}:
-			for each in data.keys():
-				if each not in functions.keys():
-					for line in self.__scopeObject.get_children():
-						if each == str(line).strip() +"\n":
-							line.ascend_scope()
-		elif data != {}:
-			for each in data.keys():
-				for line in self.__scopeObject.get_children():
-					if data[each] == str(line).strip():
-						line.ascend_scope()
+	# def is_structure_constant(self, move_data_structure_dec):
+	# 	"""
+	# 	Moves a data structure to a higher scope if it is not mutated within the scope
+	# 	"""
+	# 	functions = self.__find_function_calls()
+	# 	if data != {} and functions != {}:
+	# 		for each in data.keys():
+	# 			if each not in functions.keys():
+	# 				for line in self.__scopeObject.get_children():
+	# 					if each == str(line).strip() +"\n":
+	# 						return True:
+	# 	elif data != {}:
+	# 		for each in data.keys():
+	# 			for line in self.__scopeObject.get_children():
+	# 				if data[each] == str(line).strip():
+	# 					return True:
 
 	def __find_localized_variables(self)-> list:
 		"""
         returns a list of variable declarations
         """
 		variables = set()
+		variables.add("self")
 		for line in self.__scopeObject:
-			varMatch = re.match(r"(?P<variable>(\w)+)(\s*)=(\s*)(\w|\.|\'|\")+", line)
+			varMatch = re.match(r"(?P<variable>(\w)+)(\s*)=(\s*)(\w|\.|\'|\")+", line.strip())
+			defMatch = re.match(r"def [a-zA-z][a-zA-Z0-9]*\((?P<args>[^\)]*)\):", line.strip())
+			forMatch = re.match(r"for (?P<var>[a-zA-z][a-zA-z0-9]*) in [^:\]]*", line.strip())
 			if(varMatch != None):
-				variables.insert(varMatch.group("variable"))
+				variables.add(varMatch.group("variable"))
+			elif(defMatch != None):
+				for var in re.split(", *", defMatch.group("args")):
+					variables.add(var)
+			elif(forMatch != None):
+				variables.add(forMatch.group("var"))
+
+		ptr = self.__scopeObject.get_parent()
+		while not ptr.is_root():
+			ptr = ptr.get_parent()
+		for child in ptr.get_children():
+			if child.get_type() == "STATEMENT":
+				varMatch = re.match(r"(?P<variable>(\w)+)(\s*)=(\s*)(\w|\.|\'|\")+", child.get_line().strip())
+				importMatch = re.match(r"from [a-zA-z0-9.]* import (?P<variable>[a-zA-z0-9]*)", child.get_line().strip())
+				if varMatch != None:
+ 					variables.add(varMatch.group("variable"))
+				elif importMatch != None:
+					variables.add(importMatch.group("variable"))
+			elif child.get_type() == "FUNCTION":
+				funcMatch = re.match(r"def (?P<func>[a-zA-z][a-zA-Z0-9]*)\([^\)]*\):", child.get_line().strip())
+				if funcMatch != None:
+					variables.add(funcMatch.group("func"))
+
 		return variables
 
 	def empty_loop(self):
@@ -148,10 +213,10 @@ class Optimizer:
 
 	def run(self):
 		self.eval_expressions()
-		if self.__scopeObject.get_type() != 'CONDITIONAL':
+		if self.__scopeObject.get_type() == 'FORLOOP' and self.__scopeObject.get_parent().get_type() == 'FUNCTION':
 			self.move_variable_dec()
-			self.move_data_structure_dec()
-			self.move_variable_dec()
+			#self.move_data_structure_dec()
+			#self.move_variable_dec()
 			self.empty_loop()
 		
 
