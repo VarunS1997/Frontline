@@ -19,38 +19,41 @@ class GUI():
         self.generate_elements()
 
     def generate_elements(self):
+        '''
+    `   Generates the UI elements.
+        '''
 
         self.root.rowconfigure(1, weight = 1)
 
-        self.file_dropdown = tk.Menubutton(self.root, text = 'File')
+        self.file_dropdown = tk.Menubutton(self.root, text = 'File', font = "fixedsys 12")
         self.file_dropdown.grid(row = 0, column = 0, sticky = tk.W)
 
         self.file_dropdown.menu = tk.Menu(self.file_dropdown, tearoff = 0)
         self.file_dropdown['menu'] = self.file_dropdown.menu
 
-        self.file_dropdown.menu.add_command(label = 'New      Ctrl + N', command = self.event_new_file)
-        self.file_dropdown.menu.add_command(label = 'Open     Ctrl + O', command = self.event_open_file)
-        self.file_dropdown.menu.add_command(label = 'Save     Ctrl + S', command = self.event_save_file)
-        self.file_dropdown.menu.add_command(label = 'Save As', command = self.event_save_as_file)
-        self.file_dropdown.menu.add_command(label = 'Exit       Escape', command = self.event_exit)
+        self.file_dropdown.menu.add_command(label = 'New      Ctrl + N', command = self.event_new_file, font = "fixedsys 12")
+        self.file_dropdown.menu.add_command(label = 'Open     Ctrl + O', command = self.event_open_file, font = "fixedsys 12")
+        self.file_dropdown.menu.add_command(label = 'Save     Ctrl + S', command = self.event_save_file, font = "fixedsys 12")
+        self.file_dropdown.menu.add_command(label = 'Save As', command = self.event_save_as_file, font = "fixedsys 12")
+        self.file_dropdown.menu.add_command(label = 'Exit       Escape', command = self.event_exit, font = "fixedsys 12")
 
-        self.program_dropdown = tk.Menubutton(self.root, text = 'Program')
+        self.program_dropdown = tk.Menubutton(self.root, text = 'Program', font = "fixedsys 12")
         self.program_dropdown.grid(row = 0, column = 1, sticky = tk.W)
 
         self.program_dropdown.menu = tk.Menu(self.program_dropdown, tearoff = 0)
         self.program_dropdown['menu'] = self.program_dropdown.menu
 
-        self.program_dropdown.menu.add_command(label = 'Execute    F5', command = self.event_execute)
+        self.program_dropdown.menu.add_command(label = 'Execute    F5', command = self.event_execute, font = "fixedsys 12")
 
-       #self.gridpane = tk.PanedWindow(self.root, showhandle = False, orient = tk.HORIZONTAL)
-       #self.gridpane.grid(row = 1, column = 0, columnspan = 5)
+        self.gridpane = tk.PanedWindow(self.root, showhandle = False, orient = tk.HORIZONTAL)
+        self.gridpane.grid(row = 1, column = 0, columnspan = 5)
 
-        self.file_explorer = tk.Canvas(self.root, width = 150, height = 500, bg = 'white')
+        self.file_explorer = tk.Canvas(self.gridpane, width = 150, height = 500, bg = 'white')
         
-        self.text_editor = tk.Text(self.root, font = "fixedsys 12")
+        self.text_editor = tk.Text(self.gridpane, font = "fixedsys 12")
         
-        self.text_editor.grid(row = 1, column = 0, sticky = tk.N + tk.E + tk.S + tk.W)
-        self.file_explorer.grid(row = 1, column = 1)
+        self.gridpane.add(self.text_editor)
+        self.gridpane.add(self.file_explorer)
 
         self.root.bind('<Escape>', self.event_exit)
         self.root.bind('<Control-n>', self.event_new_file)
@@ -88,22 +91,17 @@ class GUI():
 
         self.pathlist = self.recursive_iterdir(self.root_directory)
         print(self.pathlist)
-        #for item in pathlist:
-        #    if item.isdir():
-        #        drawlist_dirs.append(item)
-        #    else: 
-        #        drawlist_files.append(item)
-        #
-        #drawlist_dirs.sort(key = lambda x: x.name)
-        #drawlist_files.sort(key = lambda x: x.name)
 
-        #drawlist = drawlist_dirs.append(drawlist_files)
         counter = 0
         for item in self.pathlist:
             self.draw_item(item.name, item.is_dir(), counter, (len(item.parts) - len(self.root_directory.parts)) - 1)
             counter += 1
 
     def draw_item(self, name: str, isdir: bool, _index: int, indent_mult: int):
+        '''
+        Draws the files and directories in the file explorer canvas from the
+        pathlist.
+        '''
         print(isdir)
         indent_const = 10
         if isdir:
@@ -129,7 +127,10 @@ class GUI():
             counter += 1
            
     def recursive_iterdir(self, path_obj: Path):
-
+        '''
+        Recursively gets all the paths in the current root directory and returns
+        them in a list.
+        '''
         pathlist = []
 
         for item in path_obj.iterdir():
@@ -207,6 +208,12 @@ class GUI():
         self.root.wm_title(str(self.root_directory) + ", No file open yet.")
 
     def event_open_file(self, event = None, canvas_path = None):
+        '''
+        Opens a file into the text editor.
+        '''
+        if self.canvas_active == False:
+            return
+
         if canvas_path == None:
             self.text_editor.delete('1.0', tk.END)
             self.file_object = filedialog.askopenfile(defaultextension = '.py', filetypes = [('Python files', '.py'), ('all files', '.*')])
@@ -234,6 +241,8 @@ class GUI():
         Attempts to save a file with the current filename.
         If file is not saved yet, prompt user for filename.
         '''
+        if self.canvas_active == False:
+            return
         if self.file_object == None:
             self.event_save_as_file()
         else:
@@ -247,6 +256,8 @@ class GUI():
         Prompts the user for a save destination and file name
         and saves the file.
         '''
+        if self.canvas_active == False:
+            return
         self.file_object = tk.filedialog.asksaveasfile(defaultextension = '.py', filetypes = [('Python files', '.py'), ('all files', '.*')])
         if self.file_object == None:
             print('Broke the loop...')
@@ -255,9 +266,10 @@ class GUI():
         self.file_object.flush()
         self.file_object.close()
 
-    # -------- Mainloop ---------
-
     def mainloop(self):
+        '''
+        Runs the mainloop of the tkinter window.
+        '''
         self.root.mainloop()
 
 if __name__ == "__main__":
