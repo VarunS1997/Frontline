@@ -5,7 +5,7 @@ import sys
 
 class Analyzer:
 	def __init__(self, subdir):
-		self.__main = __import__("TestCode." + subdir, globals(), locals(), ["main"]).main
+		self.__main = __import__(subdir, globals(), locals(), ["main"]).main
 		self.__elapsedTime = None
 		self.__failure = None
 
@@ -59,8 +59,8 @@ class MassAnalyzer:
 		return self.__data
 
 def testCase(strin, trials):
-	normal = MassAnalyzer(strin + ".in")
-	optimal = MassAnalyzer(strin + ".out")
+	normal = MassAnalyzer("TestCode." + strin + ".in")
+	optimal = MassAnalyzer("TestCode." + strin + ".out")
 
 	normal.start(trials)
 	optimal.start(trials)
@@ -74,7 +74,7 @@ def testCase(strin, trials):
 	result += "="*20 + "\n"
 	result += "TOTAL TIME: " + str(nResults["TotalTime"]) + "="*3 + ">" + str(oResults["TotalTime"]) + "="*3 + ">" + "% Improvement: " + str(round((nResults["TotalTime"]-oResults["TotalTime"])/nResults["TotalTime"], 3)) + "\n"
 	result += "AVERAGE TIME: " + str(nResults["AverageTime"]) + "="*3 + ">" + str(oResults["AverageTime"]) + "="*3 + ">" + "% Improvement: " + str(round((nResults["AverageTime"]-oResults["AverageTime"])/nResults["AverageTime"], 3)) + "\n"
-	result += "TRIALS: " + str(nResults["Trials"]) + "="*3 + ">" + str(oResults["Trials"]) + "="*3 + ">" + "\n"
+	result += "TRIALS: " + str(nResults["Trials"]) + "="*3 + ">" + str(oResults["Trials"]) + "\n"
 	result += "="*20 + "\n"
 	result += "="*20 + "\n"
 	return result

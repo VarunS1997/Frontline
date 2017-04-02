@@ -48,5 +48,16 @@ if __name__ == '__main__':
 			print()
 		if not fullSpeed and "q" in input("Press enter to continue, or q to quit").lower():
 			break
+	final = "TRIALS: " + str(trials) + "\n"
 	for output in outputs:
+		final += output
 		print(output)
+
+	dataFile = open("TestCode/empiricalData.txt", "r")
+	data = dataFile.read().split("\n")
+	dataFile.close()
+	if len(data) < len(final.split("\n")) or int(data[0].strip().split(" ")[1]) <= trials:
+		print("SAVING EMPIRICAL DATA")
+		dataFile = open("TestCode/empiricalData.txt", "w")
+		dataFile.write(final)
+		dataFile.close()
