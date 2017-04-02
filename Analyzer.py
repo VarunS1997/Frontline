@@ -73,6 +73,9 @@ class MassAnalyzer:
 
 if __name__ == '__main__':
 	strin = input("Which TestCode Dir?")
+	testCase(strin)
+
+def testCase(strin):
 	normal = MassAnalyzer("TestCode/" + strin + "/in,py")
 	optimal = MassAnalyzer("TestCode/" + strin + "/out.py")
 
