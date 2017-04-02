@@ -4,8 +4,6 @@ def simple():
         b = "b"
         ab = a + b
         li = []
-        li.append(a)
-        li.append(b)
-        li.append(c)
-
+        c += b
+        a = 4-4+4+4
     return c
