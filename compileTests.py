@@ -34,17 +34,19 @@ if __name__ == '__main__':
 		trials = int(trials)
 	fullSpeed = "n" in input("Pauses?").lower().strip()
 	outputs = []
-	if "y" in userin or userin == "":
-		for i, test in enumerate(allTests):
-			print("ANALYZING ", i, test)
-			try:
-				outputs.append(testCase(test, trials).format(i, test))
-			except Exception as e:
-				print()
-				print("TEST FAILURE!!!")
-				print(e)
-				print()
-			if not fullSpeed and "q" in input("Press enter to continue, or q to quit").lower():
-				break
+	for i, test in enumerate(allTests):
+		print("ANALYZING ", i, test)
+		if "y" not in userin and userin != "":
+			if "y" in input("Skip Test?"):
+				continue
+		try:
+			outputs.append(testCase(test, trials).format(i, test))
+		except Exception as e:
+			print()
+			print("TEST FAILURE!!!")
+			print(e)
+			print()
+		if not fullSpeed and "q" in input("Press enter to continue, or q to quit").lower():
+			break
 	for output in outputs:
 		print(output)
