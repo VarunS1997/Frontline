@@ -30,6 +30,7 @@ class TempFile:
 		open_file.close()
 		while not scopeObjPtr.is_root():
 			scopeObjPtr = scopeObjPtr.get_parent()
+		print("ROOT CHILDREN: ", [c.get_line() for c in scopeObjPtr.get_children()])
 		self.__root = scopeObjPtr
 		self.__done = False
 		self.__parallelImports = False
@@ -52,6 +53,7 @@ class TempFile:
 			self.__run__optimizer()
 		if(self.__parallelize):
 			self.__run_parallizer()
+		print("ROOT CHILDREN: ", [c.get_line() for c in self.__root.get_children()])
 
 	def __run_parallizer(self):
 		def run_subroutine(child):
@@ -63,6 +65,7 @@ class TempFile:
 			if(not self.__parallelImports and p.has_parallelized()):
 				self.__parallelImports = True
 				self.__root.add_child("from multiprocessing import Pool\n", 0)
+				self.__root.add_child("from functools import partial\n", 0)
 
 		childrenList = list(self.__root.get_children())
 		for child in childrenList:

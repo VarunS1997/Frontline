@@ -3,7 +3,8 @@ from Analyzer import testCase
 
 ptests = ["ptest1", "ptest2", "ptest3", "ptest4", "demo1"]
 otests = ["otest1", "otest2", "otest3", "demo2"]
-allTests = ptests + otests
+atests = ["atest1"]
+allTests = ptests + otests + atests
 
 def compiletests():
 	def compile(subdir, parallize = True, optimize = True):
@@ -18,6 +19,9 @@ def compiletests():
 
 	for d in otests:
 		compile(d, False, True)
+
+	for d in atests:
+		compile(d)
 
 if __name__ == '__main__':
 	compiletests()
@@ -56,8 +60,8 @@ if __name__ == '__main__':
 		confirmation = input("OVERWRITE CONFIRM: ").lower()
 		if("n" in confirmation or confirmation.strip() == ""):
 			print("NO CONFIRMATION. ABORTING SAVE")
-			return
-		print("SAVING EMPIRICAL DATA")
-		dataFile = open("TestCode/empiricalData.txt", "w")
-		dataFile.write(final)
-		dataFile.close()
+		else:
+			print("SAVING EMPIRICAL DATA")
+			dataFile = open("TestCode/empiricalData.txt", "w")
+			dataFile.write(final)
+			dataFile.close()

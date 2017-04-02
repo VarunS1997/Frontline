@@ -39,6 +39,15 @@ class Parallelizer:
         self.__scopeObject.add_child("\t"*(self.__tabCount+1) + "return subresult" + uniqueId + "\n")
 
         internalVars = self.__find_localized_variables()
+        internalVars.add("localscope")
+
+        externalVars = self.__get_local_scope()
+        for var in self.__find_variables(self.__scopeObject):
+            externalVars.remove(var)
+        print("EXTERNAL VARS: ", externalVars)
+        for var in externalVars:
+            self.__scopeObject.refactor(var, "localscope['{0}']".format(var))
+
         print("INTERNAL VARS: ", internalVars)
         for child in self.__scopeObject.get_children():
             line = child.get_line()
@@ -59,7 +68,7 @@ class Parallelizer:
                 arg2 = assignMatch.group("arg2")
                 if var not in internalVars:
                     child.replace("subresult" + uniqueId + ".append(({0}, tuple([{1}])))\n".format('"{0}.__setitem__"'.format(var), ", ".join(["repr({})".format(arg) for arg in [arg1, arg2]])))
-        loopFuncDec = "def PARFOR" + uniqueId + "(" + varName + "):\n"
+        loopFuncDec = "def PARFOR" + uniqueId + "(" + varName + ", localscope):\n"
         print("REPLACING: " + str(self.__scopeObject.get_line().encode("unicode-escape")))
         self.__scopeObject.replace(loopFuncDec)
 
@@ -72,26 +81,34 @@ class Parallelizer:
         selfIndex = self.__scopeObject.get_parent().index_of(self.__scopeObject)
 
         self.__scopeObject.get_parent().add_child("\t"*self.__tabCount + "p = Pool(" + str(self.__processes) + ")\n", selfIndex+1)
-        self.__scopeObject.get_parent().add_child("\t"*self.__tabCount + "result" + uniqueId + " = p.map(PARFOR" + uniqueId + ", [" + varName + " " + oldCode.rstrip()[:-1] + "])\n", selfIndex+2)
-        self.__scopeObject.get_parent().add_child("\t"*self.__tabCount + "p.close()\n", selfIndex+3)
+        self.__scopeObject.get_parent().add_child("\t"*self.__tabCount + "lscope = locals().copy()\n", selfIndex+2)
+        self.__scopeObject.get_parent().add_child("\t"*self.__tabCount + "lscope.pop('p')\n", selfIndex+3)
+        self.__scopeObject.get_parent().add_child("\t"*self.__tabCount + "result" + uniqueId + " = p.map(partial(PARFOR" + uniqueId + ", localscope = lscope), [" + varName + " " + oldCode.rstrip()[:-1] + "])\n", selfIndex+4)
+        self.__scopeObject.get_parent().add_child("\t"*self.__tabCount + "p.close()\n", selfIndex+5)
 
         compilationForLoopObj = ScopeObject("\t"*self.__tabCount + "for pendingCalls in result" + uniqueId + ":\n", self.__scopeObject.get_parent())
         compilationForLoopObj.add_child("\t"*(self.__tabCount+1) + "for pcall in pendingCalls:\n")
         compilationForLoopObj.get_children()[0].add_child("\t"*(self.__tabCount+2) + "eval(pcall[0])(*[eval(arg) for arg in pcall[1]])\n")
-        self.__scopeObject.get_parent().add_child(compilationForLoopObj, selfIndex+4)
+        self.__scopeObject.get_parent().add_child(compilationForLoopObj, selfIndex+6)
 
         ptr = self.__scopeObject.get_parent()
         while(not ptr.is_root()):
-            ptr = ptr.get_parent()
             self.__scopeObject.ascend_scope()
+            print("ASCENDED TO ", self.__scopeObject.get_parent().get_line() or "None")
+            ptr = self.__scopeObject.get_parent()
 
-    def __find_localized_variables(self)-> list:
-        """
-        returns a list of variable declarations
-        """
+    def __get_local_scope(self):
+        ptr = self.__scopeObject
+        while ptr.get_type() not in ["FUNCTION", "ROOT", "CLASS"]:
+            ptr = ptr.get_parent()
+        return self.__find_variables(ptr)
+
+    def __find_variables(self, scope):
+        if(scope == None):
+            scope = self.__scopeObject
         variables = set()
         variables.add("self")
-        for line in self.__scopeObject:
+        for line in scope:
             varMatch = re.match(r"(?P<variable>(\w)+)(\s*)=(\s*)(\w|\.|\'|\")+", line.strip())
             defMatch = re.match(r"def [a-zA-z][a-zA-Z0-9]*\((?P<args>[^\)]*)\):", line.strip())
             forMatch = re.match(r"for (?P<var>[a-zA-z][a-zA-z0-9]*) in [^:\]]*", line.strip())
@@ -102,8 +119,18 @@ class Parallelizer:
                     variables.add(var)
             elif(forMatch != None):
                 variables.add(forMatch.group("var"))
+        return variables
 
-        ptr = self.__scopeObject.get_parent()
+
+    def __find_localized_variables(self, scope = None)-> list:
+        """
+        returns a list of variable declarations
+        """
+        if(scope == None):
+            scope = self.__scopeObject
+        variables = self.__get_local_scope()
+
+        ptr = scope.get_parent()
         while not ptr.is_root():
             ptr = ptr.get_parent()
         for child in ptr.get_children():

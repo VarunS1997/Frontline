@@ -1,3 +1,4 @@
+import re
 class ScopeObject:
 	idCounter = 0
 	def __init__(self, line: str, parent):
@@ -23,10 +24,13 @@ class ScopeObject:
 	def ascend_scope(self):
 		''' moves the requested line to a higher scope if possible, return false if not'''
 		def remove_ltab(child):
+			print("HAD TABS: ", child.get_line().count("\t"))
 			child.__raw_replace(child.get_line()[1:])
+			print("NOW HAS TABS: ", child.get_line().count("\t"))
 			for subchild in child.get_children():
 				remove_ltab(subchild)
 		if self.is_root() or self.__parent.is_root():
+			print("FAILED TO ASCEND")
 			return False
 		else:
 			pindex = self.__parent.get_parent().index_of(self.__parent)
@@ -37,7 +41,12 @@ class ScopeObject:
 
 
 	def refactor(self, old_name, new_name):
+		if old_name.strip() == "":
+			return
 		self.__line.replace(old_name, new_name)
+		print("REFACTORING ", r"\b" + old_name + r"\b", " WITH ", new_name, " IN ", str(self.__line.encode("unicode-escape")))
+		self.replace(re.sub(r"\b" + old_name + r"\b", new_name, self.__line.replace("\t", "")))
+		print("NOW: ", str(self.__line.encode("unicode-escape")))
 		for child in self.__children:
 			child.refactor(old_name, new_name)
 
@@ -128,8 +137,8 @@ class ScopeObject:
 
 	def __typeOfScope(self):
 		''' returns the type of scope that the code is '''
-		if(self.__line == None):
-			return None
+		if(self.__parent == None):
+			return "ROOT"
 		CodeTypes = {"for": "FORLOOP", "while": "WHILELOOP", "def" : "FUNCTION", "class": "CLASS", "if": "CONDITIONAL", "else": "CONDITIONAL", "elif": "CONDITIONAL"}
 		code = self.__line.replace(" ", "").strip().lower()
 		for k,v in CodeTypes.items():
