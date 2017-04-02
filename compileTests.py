@@ -52,7 +52,11 @@ if __name__ == '__main__':
 	dataFile = open("TestCode/empiricalData.txt", "r")
 	data = dataFile.read().split("\n")
 	dataFile.close()
-	if len(data) <= len(final.split("\n")):
+	if len(data) <= len(final.split("\n")) or int(data[0].split(" ")[1]) <= trials:
+		confirmation = input("OVERWRITE CONFIRM: ").lower()
+		if("n" in confirmation or confirmation.strip() == ""):
+			print("NO CONFIRMATION. ABORTING SAVE")
+			return
 		print("SAVING EMPIRICAL DATA")
 		dataFile = open("TestCode/empiricalData.txt", "w")
 		dataFile.write(final)
