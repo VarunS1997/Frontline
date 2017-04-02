@@ -23,7 +23,6 @@ class Analyzer:
 			self.__elapsedTime = time() - now
 
 			self.__failure = False
-			self.__ready = False
 		except Exception as e:
 			print(e)
 			self.__failure = True
@@ -35,21 +34,23 @@ class Analyzer:
 		return self.__failure
 
 class MassAnalyzer:
-	def __init__(self, main_py, tests = 100):
-		self.__analyzers = []
-		for i in range(tests):
-			self.__analyzers.append(Analyzer(main_py))
+	def __init__(self, main_py):
+		self.__analyzer = Analyzer(main_py)
+
+		self.__times = []
+
 		self.__ready = True
 		self.__done = False
 		self.__processed = False
 
 		self.__data = None
 
-	def start(self):
+	def start(self, tests = 100):
 		if not self.__ready:
 			return
-		for a in self.__analyzers:
+		for a in range(tests):
 			a.test()
+			self.__times.append(a.get_time())
 		self.__ready = False
 		self.__done = True
 
@@ -57,13 +58,8 @@ class MassAnalyzer:
 		if self.__done and not self.__processed:
 			self.__data = dict()
 
-			totalTime = 0
-			totalSuccess = 0
-
-			for a in self.__analyzers:
-				if(a.get_failure() == False):
-					totalTime += a.get_time()
-					totalSuccess += 1
+			totalTime = sum(self.__times)
+			totalSuccess = len(self.__times)
 
 			self.__data["TotalTime"] = totalTime
 			self.__data["AverageTime"] = totalTime / totalSuccess
