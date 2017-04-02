@@ -89,6 +89,7 @@ class Parallelizer:
         returns a list of variable declarations
         """
         variables = set()
+        variables.add("self")
         for line in self.__scopeObject:
             varMatch = re.match(r"(?P<variable>(\w)+)(\s*)=(\s*)(\w|\.|\'|\")+", line.strip())
             defMatch = re.match(r"def [a-zA-z][a-zA-Z0-9]*\((?P<args>[^\)]*)\):", line.strip())
@@ -112,6 +113,10 @@ class Parallelizer:
                     variables.add(varMatch.group("variable"))
                 elif importMatch != None:
                     variables.add(importMatch.group("variable"))
+            elif child.get_type() == "FUNCTION":
+                funcMatch = re.match(r"def (?P<func>[a-zA-z][a-zA-Z0-9]*)\([^\)]*\):", child.get_line().strip())
+                if funcMatch != None:
+                    variables.add(funcMatch.group("func"))
 
         return variables
 
