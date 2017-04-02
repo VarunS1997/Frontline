@@ -70,3 +70,18 @@ class MassAnalyzer:
 			self.__data["Trials"] = totalSuccess
 			self.__processed = True
 		return self.__data
+
+if __name__ == '__main__':
+	strin = input("Which TestCode Dir?")
+	normal = MassAnalyzer("TestCode/" + strin + "/in,py")
+	optimal = MassAnalyzer("TestCode/" + strin + "/out.py")
+
+	normal.start()
+	optimal.start()
+
+	print("RESULTS:")
+	nResults = normal.get_data()
+	oResults = optimal.get_data()
+	print("TOTAL TIME: ", nResults["TotalTime"], "="*20 + ">", oResults["TotalTime"])
+	print("AVERAGE TIME: ", nResults["AverageTime"], "="*20 + ">", oResults["AverageTime"])
+	print("TRIALS: ", nResults["Trials"], "="*20 + ">", oResults["Trials"])
