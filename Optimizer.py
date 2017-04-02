@@ -32,12 +32,18 @@ class Optimizer:
 		return variables
 
 	def __find_data_structures(self) -> dict:
+		"""
+		Finds things like dictionaries and lists and returns them as a dictionary
+		"""
 		variables = {}
 		for each in self.__variable_regex_structures.findall(str(self.__scopeObject)):
 			variables[each[1].strip()] = each[0].strip()
 		return variables
 
 	def __find_function_calls(self) -> dict:
+		"""
+		Finds function calls and returns them in a dictionary
+		"""
 		variables = {}
 		for each in self.__variable_regex_functions.findall(str(self.__scopeObject)):
 			variables[each[2][:len(each[2])-1]] = each[0]
@@ -100,6 +106,9 @@ class Optimizer:
 					line.ascend_scope()
 
 	def move_data_structure_dec(self):
+		"""
+		Moves a data structure to a higher scope if it is not mutated within the scope
+		"""
 		data = self.__find_data_structures()
 		functions = self.__find_function_calls()
 		if data != {} and functions != {}:
