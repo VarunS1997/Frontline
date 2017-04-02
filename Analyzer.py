@@ -1,31 +1,22 @@
 from time import time
+import importlib.util
+import os
 import sys
 
 class Analyzer:
-	def __init__(self, main_py):
-		f = open(main_py)
-		self.__main = f.read()
-		f.close()
-
+	def __init__(self, subdir):
+		self.__main = __import__("TestCode." + subdir, globals(), locals(), ["main"]).main
 		self.__elapsedTime = None
 		self.__failure = None
 
-		self.__ready = True
-
 	def test(self):
-		if not self.__ready:
-			return
 		try:
-			exec(self.__main, globals())
-
-			now = time()
-			main()
-			self.__elapsedTime = time() - now
-
-			self.__failure = False
+			pretime = time()
+			self.__main()
+			self.__elapsedTime = time() - pretime
 		except Exception as e:
-			print(e)
 			self.__failure = True
+			print(str(e))
 
 	def get_time(self):
 		return self.__elapsedTime
@@ -34,8 +25,8 @@ class Analyzer:
 		return self.__failure
 
 class MassAnalyzer:
-	def __init__(self, main_py):
-		self.__analyzer = Analyzer(main_py)
+	def __init__(self, test_dir):
+		self.__analyzer = Analyzer(test_dir)
 
 		self.__times = []
 
@@ -49,8 +40,8 @@ class MassAnalyzer:
 		if not self.__ready:
 			return
 		for a in range(tests):
-			a.test()
-			self.__times.append(a.get_time())
+			self.__analyzer.test()
+			self.__times.append(self.__analyzer.get_time())
 		self.__ready = False
 		self.__done = True
 
@@ -67,19 +58,26 @@ class MassAnalyzer:
 			self.__processed = True
 		return self.__data
 
-def testCase(strin):
-	normal = MassAnalyzer("TestCode/" + strin + "/in.py")
-	optimal = MassAnalyzer("TestCode/" + strin + "/out.py")
+def testCase(strin, trials):
+	normal = MassAnalyzer(strin + ".in")
+	optimal = MassAnalyzer(strin + ".out")
 
-	normal.start()
-	optimal.start()
+	normal.start(trials)
+	optimal.start(trials)
 
-	print("RESULTS:")
 	nResults = normal.get_data()
 	oResults = optimal.get_data()
-	print("TOTAL TIME: ", nResults["TotalTime"], "="*20 + ">", oResults["TotalTime"])
-	print("AVERAGE TIME: ", nResults["AverageTime"], "="*20 + ">", oResults["AverageTime"])
-	print("TRIALS: ", nResults["Trials"], "="*20 + ">", oResults["Trials"])
+
+	result = ""
+	result += "="*20 + "\n"
+	result += "RESULTS: TEST {0} '{1}'" + "\n"
+	result += "="*20 + "\n"
+	result += "TOTAL TIME: " + str(nResults["TotalTime"]) + "="*5 + ">" + str(oResults["TotalTime"]) + "\n"
+	result += "AVERAGE TIME: " + str(nResults["AverageTime"]) + "="*5 + ">" + str(oResults["AverageTime"]) + "\n"
+	result += "TRIALS: " + str(nResults["Trials"]) + "="*5 + ">" + str(oResults["Trials"]) + "\n"
+	result += "="*20 + "\n"
+	result += "="*20 + "\n"
+	return result
 
 if __name__ == '__main__':
 	strin = input("Which TestCode Dir?")
