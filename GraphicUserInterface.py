@@ -14,12 +14,10 @@ class GUI():
 
         self.splashscreen = tk.Tk()
 
-        self.splashimage = PhotoImage(master = self.splashscreen, file = "Icons\\frontline_treads.gif")
+        self.splashimage = PhotoImage(master = self.splashscreen, file = "Icons\\frontline_logo.gif")
         self.splashscreen_label = tk.Label(self.splashscreen, image = self.splashimage)
         self.splashscreen_label.image = self.splashimage
         self.splashscreen_label.pack(anchor = tk.N)
-        self.splashscreen_labeltext = tk.Label(self.splashscreen, text = "Frontline", font = "fixedsys 24")
-        self.splashscreen_labeltext.pack(anchor = tk.S)
 
         self.splashscreen.wm_title("Frontline ")
 
