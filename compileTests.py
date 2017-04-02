@@ -8,7 +8,7 @@ allTests = ptests + otests + dtests
 
 def compiletests():
 	def compile(subdir, parallize = True, optimize = True):
-		t = TempFile("TestCode/" + subdir + "/in.py")
+		t = TempFile(open("TestCode/" + subdir + "/in.py"))
 		t.set_parallize(parallize)
 		t.set_optimize(optimize)
 		t.run()

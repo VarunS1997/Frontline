@@ -3,14 +3,13 @@ from Optimizer import Optimizer
 from ScopeObject import ScopeObject
 
 class TempFile:
-	def __init__(self, file_address: str):
+	def __init__(self, open_file):
 		''' Handles file opening and initialization of optimizer and parallelizer and etc'''
 		scopeObjPtr = ScopeObject(None, None)
 
-		file = open(file_address)
 		tabCount = 0
 
-		for line in file:
+		for line in open_file:
 			fline = line.replace("    ", "\t")
 			cTabs = fline.count("\t")
 			print("READING: ", fline.encode("unicode-escape"))
@@ -28,7 +27,7 @@ class TempFile:
 				newchild = ScopeObject(fline, scopeObjPtr)
 				scopeObjPtr.add_child(newchild)
 
-		file.close()
+		open_file.close()
 		while not scopeObjPtr.is_root():
 			scopeObjPtr = scopeObjPtr.get_parent()
 		self.__file_address = file_address
