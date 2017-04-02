@@ -5,7 +5,7 @@ class Optimizer:
 	def __init__(self, scopeObject):
 		self.__variable_regex_single = re.compile(r"((?P<variable>(\w|\d|\.|\[|\]|\'|\")+)\s*=\s*(\w|\d|\.|\'|\")+(\n|(\(\s*(\w+\s*,\s*)*(\w)*\s*\))))")
 		self.__variable_regex_operators = re.compile(r"((?P<variable>(\w|\d|\.|\[|\]|\'|\")+)\s*=\s*((\w+)[^\W]*\s*[\-\+\*\/]+\s*)+(\w+[\w\d\.\[\]\'\"]*)\n)")
-		self.__variable_regex_operater_equals = re.compile(r"(?P<variable>(\w|\d|\.|\[|\]|\'|\")+)\s*[\+\-]=\s*.*")
+		self.__variable_regex_operater_equals = re.compile(r"((?P<variable>(\w|\d|\.|\[|\]|\'|\")+)\s*[\+\-]=\s*.*)")
 		self.__variable_regex_structures = re.compile(r"((.+)\s*=\s*[\[\{].*[\]\}])")
 		self.__variable_regex_functions = re.compile(r"(?P<funcCall>(?P<func>([a-zA-Z]*\.)*[a-zA-Z]+)\((?P<args>[^+\-/*\n]*)\)[ \n])")
 		self.__get_declaration = re.compile(r"\w+\s*=\s*(.+)")
@@ -27,7 +27,7 @@ class Optimizer:
 		for each in self.__variable_regex_operators.findall(str(self.__scopeObject)):
 			variables[each[1]] = each[0]
 		for each in self.__variable_regex_operater_equals.findall(str(self.__scopeObject)):
-			variables[each[1]] = each[0]
+			variables[each[1]] = each[0]+ "\n"
 		return variables
 
 	def __find_data_structures(self) -> dict:
@@ -49,6 +49,7 @@ class Optimizer:
 		variable_names = variables.keys()
 		constants = []
 		local = self.__find_localized_variables()
+		print(local)
 		for each in variable_names:
 			declaration = ''
 			try:
@@ -67,15 +68,12 @@ class Optimizer:
 			for regex in self.__list_of_evals:
 				try:
 					expression = regex.findall(str(line).strip())[0][0]
-					print(expression, "<--- debugging")
 					new_line = list(str(line))
-					print(list(expression))
 					for each in list(expression):
 						new_line.remove(each)
-					new_line.remove("\n")
-					print(eval(''.join(expression)))
 					new_line = ''.join(new_line) + str(eval(''.join(expression)))
-					line.replace(new_line.strip())
+					line.replace(" ".join(new_line.split())  + "\n")
+					line.ascend_scope()
 				except:
 					pass
 
@@ -124,4 +122,6 @@ class Optimizer:
 		self.eval_expressions()
 		self.move_variable_dec()
 		self.move_data_structure_dec()
+		self.move_variable_dec()
+
 
