@@ -14,7 +14,6 @@ class TempFile:
 			fline = line.replace("    ", "\t")
 			cTabs = fline.count("\t")
 			print("READING: ", fline.encode("unicode-escape"))
-			print("CTABS: ", cTabs, " === tabCount: ", tabCount)
 			if(line.rstrip() == ""):
 				continue
 			elif(cTabs == tabCount + 1): # deeper
