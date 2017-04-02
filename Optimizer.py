@@ -101,7 +101,6 @@ class Optimizer:
 		"""
 		variables = self.__find_variables()
 		constants = self.find_constants(variables)
-		print(constants)
 		for each in constants:
 			for line in self.__scopeObject.get_children():
 				if each == str(line).strip()+"\n":
@@ -149,10 +148,12 @@ class Optimizer:
 
 	def run(self):
 		self.eval_expressions()
-		self.move_variable_dec()
-		self.move_data_structure_dec()
-		self.move_variable_dec()
-		self.empty_loop()
+		if self.__scopeObject.get_type() != 'CONDITIONAL':
+			self.move_variable_dec()
+			self.move_data_structure_dec()
+			self.move_variable_dec()
+			self.empty_loop()
+		
 
 
 
