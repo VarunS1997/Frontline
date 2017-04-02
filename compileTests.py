@@ -4,7 +4,8 @@ from Analyzer import testCase
 ptests = ["ptest1", "ptest2", "ptest3", "ptest4"]
 otests = ["otest1", "otest2", "otest3","demo2"]
 dtests = ["demo1"]
-allTests = ptests + otests + dtests
+atests = ["atest1"]
+allTests = ptests + otests + dtests + atests
 
 def compiletests():
 	def compile(subdir, parallize = True, optimize = True):
@@ -22,6 +23,9 @@ def compiletests():
 
 	for d in dtests:
 		compile(d, True, False)
+
+	for d in atests:
+		compile(d)
 
 if __name__ == '__main__':
 	compiletests()
@@ -56,7 +60,7 @@ if __name__ == '__main__':
 	dataFile = open("TestCode/empiricalData.txt", "r")
 	data = dataFile.read().split("\n")
 	dataFile.close()
-	if len(data) < len(final.split("\n")) or int(data[0].strip().split(" ")[1]) <= trials:
+	if len(data) <= len(final.split("\n")):
 		print("SAVING EMPIRICAL DATA")
 		dataFile = open("TestCode/empiricalData.txt", "w")
 		dataFile.write(final)

@@ -17,7 +17,7 @@ class Parallelizer:
         scopeType = self.__scopeObject.get_type()
         print("PROCESSING TYPE " + self.__scopeObject.get_type() + " : " + str(self.__scopeObject.get_line().encode("unicode-escape")))
         if(scopeType != None):
-            if(scopeType not in ["FUNCTION", "FORLOOP"]):
+            if(scopeType not in ["FORLOOP"]):
                 self.__done = True
                 return
             elif(scopeType == "FORLOOP"):
@@ -39,25 +39,26 @@ class Parallelizer:
         self.__scopeObject.add_child("\t"*(self.__tabCount+1) + "return subresult" + uniqueId + "\n")
 
         internalVars = self.__find_localized_variables()
-        for line in self.__scopeObject:
-            print("FOR LOOP CHECK: ", str(line.encode("unicode-escape")))
+        print("INTERNAL VARS: ", internalVars)
+        for child in self.__scopeObject.get_children():
+            line = child.get_line()
+            print("FOR LOOP " + str(uniqueId) + " CHECK: ", str(line.encode("unicode-escape")))
             funcMatch = re.match(r"(?P<funcCall>(?P<func>([a-zA-Z]*\.)*[a-zA-Z]+)\((?P<args>[^\n]*)\)[ \n]?)", line.strip())
             assignMatch = re.match(r"(?P<variable>[^\[]+)\[(?P<arg1>[^\]]+)\] *= *(?P<arg2>[^\n]+)", line.strip())
             if(funcMatch != None):
                 args = re.split(", *", funcMatch.group("args"))
-
+                print("ARGS: ", args)
                 basis = funcMatch.group("func")
                 basis = basis[:basis.index(".") if "." in basis else len(basis)]
-                print("INTERNVAL VARS: ", internalVars)
-                if any([(re.match(r"(?P<open>[\"\']).*(?P=open)", var) == None and re.match(r"[0-9]+", var) == None) and var not in internalVars for var in args]) and not (basis in internalVars or basis in dir(builtins) or keyword.iskeyword(basis)):
-                    print("BASIS: ", basis, basis == "print", "print" in dir(builtins))
-                    self.__scopeObject.get_child(line).replace("subresult" + uniqueId + ".append(({0}, tuple([{1}])))\n".format('"{}"'.format(funcMatch.group("func")), ", ".join(["repr({})".format(arg) for arg in args])))
+                print("BASIS: ", basis)
+                if any([re.match(r"(?P<open>[\"\']).*(?P=open)", var) == None and re.match(r"[0-9]+", var) == None and var not in internalVars for var in args]) or not (basis in internalVars or basis in dir(builtins) or keyword.iskeyword(basis)):
+                    child.replace("subresult" + uniqueId + ".append(({0}, tuple([{1}])))\n".format('"{}"'.format(funcMatch.group("func")), ", ".join(["repr({})".format(arg) for arg in args])))
             elif(assignMatch != None):
                 var = assignMatch.group("variable")
                 arg1 = assignMatch.group("arg1")
                 arg2 = assignMatch.group("arg2")
                 if var not in internalVars:
-                    self.__scopeObject.get_child(line).replace("subresult" + uniqueId + ".append(({0}, tuple([{1}])))\n".format('"{0}.__setitem__"'.format(var), ", ".join(["repr({})".format(arg) for arg in [arg1, arg2]])))
+                    child.replace("subresult" + uniqueId + ".append(({0}, tuple([{1}])))\n".format('"{0}.__setitem__"'.format(var), ", ".join(["repr({})".format(arg) for arg in [arg1, arg2]])))
         loopFuncDec = "def PARFOR" + uniqueId + "(" + varName + "):\n"
         print("REPLACING: " + str(self.__scopeObject.get_line().encode("unicode-escape")))
         self.__scopeObject.replace(loopFuncDec)
