@@ -3,7 +3,8 @@ from Analyzer import testCase
 
 ptests = ["ptest1", "ptest2", "ptest3", "ptest4"]
 otests = ["otest1"]
-allTests = ptests + otests
+dtests = ["demo1"]
+allTests = ptests + otests + dtests
 
 def compiletests():
 	def compile(subdir, parallize = True, optimize = True):
@@ -18,6 +19,9 @@ def compiletests():
 
 	for d in otests:
 		compile(d, False, True)
+
+	for d in dtests:
+		compile(d)
 
 if __name__ == '__main__':
 	compiletests()
