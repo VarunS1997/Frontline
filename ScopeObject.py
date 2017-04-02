@@ -130,7 +130,7 @@ class ScopeObject:
 		''' returns the type of scope that the code is '''
 		if(self.__line == None):
 			return None
-		CodeTypes = {"for": "FORLOOP", "while": "WHILELOOP", "def" : "FUNCTION", "class": "CLASS", "if": "IF"}
+		CodeTypes = {"for": "FORLOOP", "while": "WHILELOOP", "def" : "FUNCTION", "class": "CLASS", "if": "CONDITIONAL", "else": "CONDITIONAL", "elif": "CONDITIONAL"}
 		code = self.__line.replace(" ", "").strip().lower()
 		for k,v in CodeTypes.items():
 			if(code.startswith(k)):
