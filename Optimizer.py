@@ -23,12 +23,13 @@ class Optimizer:
 		returns a dict of the variables and their declarations
 		"""
 		variables = {}
+		for each in self.__variable_regex_operater_equals.findall(str(self.__scopeObject)):
+			variables[each[1]] = each[0]+ "\n"
 		for each in self.__variable_regex_single.findall(str(self.__scopeObject)):
 			variables[each[1]] = each[0]
 		for each in self.__variable_regex_operators.findall(str(self.__scopeObject)):
 			variables[each[1]] = each[0]
-		for each in self.__variable_regex_operater_equals.findall(str(self.__scopeObject)):
-			variables[each[1]] = each[0]+ "\n"
+
 		return variables
 
 	def __find_data_structures(self) -> dict:
@@ -100,6 +101,7 @@ class Optimizer:
 		"""
 		variables = self.__find_variables()
 		constants = self.find_constants(variables)
+		print(constants)
 		for each in constants:
 			for line in self.__scopeObject.get_children():
 				if each == str(line).strip()+"\n":
@@ -138,7 +140,7 @@ class Optimizer:
 		"""
 		Gets rid of empty loops
 		"""
-		if re.findall(r"(for)", self.__scopeObject.get_line()) != None:
+		if re.findall(r"(for)", self.__scopeObject.get_line()) != []:
 			if self.__scopeObject.get_children() == []:
 				self.__scopeObject.get_parent().remove_child(self.__scopeObject)
 
@@ -151,5 +153,7 @@ class Optimizer:
 		self.move_data_structure_dec()
 		self.move_variable_dec()
 		self.empty_loop()
+
+
 
 

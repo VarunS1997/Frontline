@@ -2,7 +2,7 @@ from TempFile import TempFile
 from Analyzer import testCase
 
 ptests = ["ptest1", "ptest2", "ptest3", "ptest4"]
-otests = ["otest1"]
+otests = ["otest1", "otest2", "otest3"]
 dtests = ["demo1"]
 allTests = ptests + otests + dtests
 
