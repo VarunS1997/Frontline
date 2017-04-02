@@ -30,7 +30,6 @@ class TempFile:
 		open_file.close()
 		while not scopeObjPtr.is_root():
 			scopeObjPtr = scopeObjPtr.get_parent()
-		self.__file_address = file_address
 		self.__root = scopeObjPtr
 		self.__done = False
 		self.__parallelImports = False
