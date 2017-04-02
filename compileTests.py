@@ -37,7 +37,7 @@ if __name__ == '__main__':
 	for i, test in enumerate(allTests):
 		print("ANALYZING ", i, test)
 		if "y" not in userin and userin != "":
-			if "y" in input("Skip Test?"):
+			if "y" in input("Skip Test?").lower():
 				continue
 		try:
 			outputs.append(testCase(test, trials).format(i, test))
