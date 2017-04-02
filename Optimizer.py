@@ -55,7 +55,7 @@ class Optimizer:
 		Finds constant variables within scope
 		"""
 		constants = []
-		print(variables)
+		print("VARIABLES: ", variables)
 		local = self.__find_localized_variables()
 		for each in variables:
 			if each[-1] == ']':
@@ -65,7 +65,6 @@ class Optimizer:
 						if self.__get_declaration.match(each.strip()).group(0) + '.' == self.__variable_regex_functions.match(j).group(3):
 							is_constant = True
 						else:
-							print("hi")
 							is_constant = False
 							break
 					except:
@@ -81,16 +80,13 @@ class Optimizer:
 				if re.match(r"\"\w*\"|\d*",declaration) != None:
 					constants.append(each)
 			else:
-				print(each)
 				try:
 					args = self.__variable_regex_functions.match(each).group("args")
 				except:
 					args = self.__variable_regex_functions2.match(each).group("args")
 				args = args.split(',')
-				print(args)
 				is_constant = True
 				for i in args:
-					print(i in local)
 					if i in local:
 						is_constant = False
 				for j in variables:
@@ -98,7 +94,6 @@ class Optimizer:
 						if self.__get_declaration.match(j.strip()).group(0) + '.' == self.__variable_regex_functions.match(each).group(3):
 							is_constant = True
 						else:
-							print("hi")
 							is_constant = False
 							break
 					except:
@@ -218,8 +213,3 @@ class Optimizer:
 			#self.move_data_structure_dec()
 			#self.move_variable_dec()
 			self.empty_loop()
-		
-
-
-
-
