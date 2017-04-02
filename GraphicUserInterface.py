@@ -169,7 +169,7 @@ class GUI():
 
     def event_execute(self, event = None):
         new_temp = TempFile(self.file_path.open('r'))
-
+        new_temp.run()
         new_temp.writeTo(self.root_directory / Path('AutoPy') / self.file_path.name)        
 
     def event_canvas(self, event):
