@@ -51,7 +51,7 @@ class Parallelizer:
                 basis = funcMatch.group("func")
                 basis = basis[:basis.index(".") if "." in basis else len(basis)]
                 print("BASIS: ", basis)
-                if any([re.match(r"(?P<open>[\"\']).*(?P=open)", var) == None and re.match(r"[0-9]+", var) == None and var not in internalVars for var in args]) or not (basis in internalVars or basis in dir(builtins) or keyword.iskeyword(basis)):
+                if any([re.match(r"(?P<open>[\"\']).*(?P=open)", var) == None and re.match(r"[0-9]+", var) == None and var not in internalVars for var in args]) and not (basis in internalVars or basis in dir(builtins) or keyword.iskeyword(basis)):
                     child.replace("subresult" + uniqueId + ".append(({0}, tuple([{1}])))\n".format('"{}"'.format(funcMatch.group("func")), ", ".join(["repr({})".format(arg) for arg in args])))
             elif(assignMatch != None):
                 var = assignMatch.group("variable")
