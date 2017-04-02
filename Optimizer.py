@@ -134,6 +134,14 @@ class Optimizer:
 				variables.insert(varMatch.group("variable"))
 		return variables
 
+	def empty_loop(self):
+		"""
+		Gets rid of empty loops
+		"""
+		if re.findall(r"(for)", self.__scopeObject.get_line()) != None:
+			if self.__scopeObject.get_children() == []:
+				self.__scopeObject.get_parent().remove_child(self.__scopeObject)
+
 	def keep_useful_code(self):
 		pass
 
@@ -142,5 +150,6 @@ class Optimizer:
 		self.move_variable_dec()
 		self.move_data_structure_dec()
 		self.move_variable_dec()
+		self.empty_loop()
 
 
