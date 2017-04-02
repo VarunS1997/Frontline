@@ -23,9 +23,24 @@ if __name__ == '__main__':
 	compiletests()
 	print("ALL TESTS COMPILED")
 	userin = input("Run all tests?").lower().strip()
+	trials = input("Trials?")
+	if trials == "":
+		trials = 100
+	else:
+		trials = int(trials)
+	fullSpeed = "n" in input("Pauses?").lower().strip()
+	outputs = []
 	if "y" in userin or userin == "":
 		for i, test in enumerate(allTests):
-			print("ANALYZING ", i)
-			testCase(test)
-			if "q" in input("Press enter to continue, or q to quit").lower():
+			print("ANALYZING ", i, test)
+			try:
+				outputs.append(testCase(test, trials).format(i, test))
+			except Exception as e:
+				print()
+				print("TEST FAILURE!!!")
+				print(e)
+				print()
+			if not fullSpeed and "q" in input("Press enter to continue, or q to quit").lower():
 				break
+	for output in outputs:
+		print(output)
