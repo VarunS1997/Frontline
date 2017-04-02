@@ -1,22 +1,43 @@
 import tkinter as tk
 import tkinter.filedialog as filedialog
+from tkinter import PhotoImage
 from pathlib import Path
 from TempFile import TempFile
 import os
+from time import sleep
 
 class GUI():
 
     def __init__(self):
+        self.py_xbm = r"@icons\py.xbm"
+        self.dir_xbm = r"@icons\dir.xbm"
+
+        self.splashscreen = tk.Tk()
+
+        self.splashimage = PhotoImage(master = self.splashscreen, file = "Icons\\frontline_treads.gif")
+        self.splashscreen_label = tk.Label(self.splashscreen, image = self.splashimage)
+        self.splashscreen_label.image = self.splashimage
+        self.splashscreen_label.pack(anchor = tk.N)
+        self.splashscreen_labeltext = tk.Label(self.splashscreen, text = "Frontline", font = "fixedsys 24")
+        self.splashscreen_labeltext.pack(anchor = tk.S)
+
+        self.splashscreen.wm_title("Frontline ")
+
+        self.splashscreen.after(2000, self.kill_splash)
+        self.splashscreen.mainloop()
+
         self.root = tk.Tk()
         self.root_directory = None
         self.file_object = None
         self.file_path = None
         self.canvas_active = False
 
-        self.py_xbm = r"@icons\py.xbm"
-        self.dir_xbm = r"@icons\dir.xbm"
+        self.root.wm_title("Frontline ")
 
         self.generate_elements()
+
+    def kill_splash(self):
+        self.splashscreen.destroy()
 
     def generate_elements(self):
         '''
@@ -205,7 +226,7 @@ class GUI():
         self.create_directories()
         self.init_file_explorer()
 
-        self.root.wm_title(str(self.root_directory) + ", No file open yet.")
+        self.root.wm_title("Frontline " + str(self.root_directory) + ", No file open yet.")
 
     def event_open_file(self, event = None, canvas_path = None):
         '''
@@ -234,7 +255,7 @@ class GUI():
             self.file_object.close()
             self.redraw_file_explorer()
             
-        self.root.wm_title(str(self.root_directory) + ", " + str(self.file_path))
+        self.root.wm_title("Frontline " + str(self.root_directory) + ", " + str(self.file_path))
 
     def event_save_file(self, event = None):
         '''
