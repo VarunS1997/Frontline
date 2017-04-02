@@ -1,7 +1,7 @@
 from multiprocessing import Pool
 def PARFOR38(i):
 	subresult38 = []
-	subresult38.append(("results.append", repr(i*i)))
+	subresult38.append(("results.append", tuple([repr(i*i)])))
 	return subresult38
 def main():
 	results = []
@@ -10,7 +10,7 @@ def main():
 	p.close()
 	for pendingCalls in result38:
 		for pcall in pendingCalls:
-			eval(pcall[0])(*[eval(arg) for arg in (pcall[1].split(', '))])
+			eval(pcall[0])(*[eval(arg) for arg in pcall[1]])
 	print(results)
 	return results
 if __name__ == "__main__":

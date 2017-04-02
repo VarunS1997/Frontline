@@ -2,7 +2,7 @@ from multiprocessing import Pool
 def PARFOR2(i):
 	subresult2 = []
 	a = 4 + 2
-	subresult2.append(("print", repr("Running"), repr(i)))
+	print("Running ", i)
 	return subresult2
 def main():
 	p = Pool(4)
@@ -10,7 +10,7 @@ def main():
 	p.close()
 	for pendingCalls in result2:
 		for pcall in pendingCalls:
-			eval(pcall[0])(*[eval(arg) for arg in (pcall[1].split(', '))])
+			eval(pcall[0])(*[eval(arg) for arg in pcall[1]])
 	return 2
 if __name__ == '__main__':
 	main()
